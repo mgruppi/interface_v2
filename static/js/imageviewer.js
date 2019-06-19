@@ -11,8 +11,12 @@ function overlay_on(e){
 
 
 function setCurrentImage(currentImage){
-  document.getElementById("displayImage").src = images[currentImage]["url"];
+  var img = document.getElementById("displayImage");
+  img.src = images[currentImage]["url"];
+  img.width = img.naturalWidth;
+  img.height = img.naturalHeight;
   document.getElementById("imageTypeText").innerHTML = images[currentImage]["type"];
+
 }
 
 function nextImage(){
@@ -33,6 +37,21 @@ function overlay_off(){
   overlay.style.display = "none";
 }
 
+function toggleFit(){
+    var img = document.getElementById("displayImage");
+
+    if (img.width != img.naturalWidth)
+    {
+        img.style.width="";
+        img.width = img.naturalWidth;
+        img.height = img.naturalHeight;
+    }
+    else{
+        img.style.width = "100%";
+        img.style.height = "auto";
+    }
+}
+
 
 window.onclick = function(event)
 {
@@ -47,8 +66,8 @@ window.onkeydown = keyDownHandler;
 function keyDownHandler(e){
     var keycode = e.keyCode;
     if (keycode == 27) overlay_off();
-    else if (overlay && overlay.style.display != "" && keycode == 37)  previousImage();
-    else if (overlay && overlay.style.display != "" && keycode == 39)  nextImage();
+    else if (overlay && overlay.style.display != "none" && keycode == 37)  previousImage();
+    else if (overlay && overlay.style.display != "none" && keycode == 39)  nextImage();
 }
 
 $(document).ready(function() {
