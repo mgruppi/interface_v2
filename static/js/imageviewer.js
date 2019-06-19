@@ -47,8 +47,8 @@ window.onkeydown = keyDownHandler;
 function keyDownHandler(e){
     var keycode = e.keyCode;
     if (keycode == 27) overlay_off();
-    else if (overlay.style.display != "none" && keycode == 37)  previousImage();
-    else if (overlay.style.display != "none" && keycode == 39)  nextImage();
+    else if (overlay && overlay.style.display != "" && keycode == 37)  previousImage();
+    else if (overlay && overlay.style.display != "" && keycode == 39)  nextImage();
 }
 
 $(document).ready(function() {
@@ -56,6 +56,7 @@ $(document).ready(function() {
     var imagePanel = document.getElementById('imagePanel');
     var topBox = document.getElementById("topBox");
     var imageContainer = document.getElementById("imageContainer");
+    var uploadOverlay = document.getElementById("uploadOverlay");
 });
 
 $(document).ready(function() {

@@ -105,6 +105,180 @@
 <hr>
 
 
+<script>
+
+  var images_to_upload = Array();
+  var currentUpload = 0;
+
+  // Image Upload class
+  function ImageUpload(image, description, type){
+    this.image = image;
+    this.description = description;
+    this.type = type;
+  }
+
+  // Handles all the images selected by user
+  function handleUpload(input)
+  {
+
+    if (input.files){
+
+      for (var i = 0; i < input.files.length; ++i)
+      {
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var newImage = new ImageUpload(e.target.result, "", 1);
+          images_to_upload.push(newImage);
+          selectImage(0);
+        }
+         reader.readAsDataURL(input.files[i]);
+      }
+    }
+
+    uploadOn();
+
+  }
+
+  //Save current state of the image (used before changing images in the interface)
+  function saveCurrentImage()
+  {
+    if (currentUpload < 0) return;
+    images_to_upload[currentUpload].description = document.getElementById("imageDescription").value;
+    images_to_upload[currentUpload].type = document.getElementById("imageType").value;
+  }
+
+  function selectImage(i){
+    saveCurrentImage();
+    currentUpload = i;
+    setImageCounter();
+    $('#selectedImage').attr('src', images_to_upload[currentUpload].image);
+    $('#imageType').val(images_to_upload[currentUpload].type);
+    $('#imageDescription').val(images_to_upload[currentUpload].description);
+  }
+
+  function prevUpload(){
+    if (currentUpload - 1 < 0) {
+      c = images_to_upload.length - 1;
+    }
+    else{
+      c = currentUpload - 1;
+    }
+    selectImage(c);
+  }
+
+  function nextUpload(){
+    c = (currentUpload+1) % images_to_upload.length;
+    selectImage(c);
+  }
+
+  function setImageCounter(){
+    document.getElementById("numTotal").innerHTML = images_to_upload.length;
+    document.getElementById("numCurrent").innerHTML = currentUpload+1;
+  }
+
+  function uploadOn(){
+      document.getElementById("uploadOverlay").style.display = "flex";
+  }
+
+  function uploadOff(){
+    document.getElementById("uploadOverlay").style.display = "none";
+  }
+
+  // Clear elements if clicked "Cancel"
+  function clearUpload(){
+    uploadOff();
+    images_to_upload = [];
+  }
+
+  //Checks all images, descriptions and types and post it to server
+  // Create hidden inputs to POST image description and image type
+  function postUpload()
+  {
+    var form = document.getElementById("inputForm");
+    saveCurrentImage();  // Save last altered image
+    for(var i = 0; i < images_to_upload.length; ++i)
+    {
+      var descr = document.createElement("input");
+      descr.type="hidden";
+      descr.name = "description";
+      descr.value = images_to_upload[i].description;
+
+      var type = document.createElement("input");
+      type.type = "hidden";
+      type.name = "type";
+      type.value = images_to_upload[i].type;
+
+      // Append inputs to form
+      form.appendChild(descr);
+      form.appendChild(type);
+    }
+    form.submit();
+  }
+
+
+</script>
+
+<style>
+
+  .upload-box{
+    height: 80px;
+    border-style: dashed;
+    border-color: #999999;
+    border-width: 2px;
+  }
+
+  .upload-box:hover{
+    border-color: #222222;
+  }
+
+  .upload-box label:hover{
+    color: #222222;
+  }
+
+  .upload-button{
+    width: 0%;
+    height: 0%;
+    opacity: 0;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .upload-label{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999999;
+    cursor: pointer;
+    font-size: 24px;
+    text-align: center;
+    height:100%;
+    width:100%;
+  }
+
+  .upload-label:hover{
+    font-weight: bold;
+  }
+
+  .counter-box{
+    position: absolute;
+    z-index: 1;
+    width: 80px;
+    height: 30px;
+    background-color: #444444;
+    border-style: groove;
+    border-width: thin;
+    display: flex;
+    justify-content: center;
+    align-self: flex-end;
+  }
+
+  .counter-box p{
+    color: #EAEAEA;
+    font-size: 24px;
+    letter-spacing: 0.2em;
+  }
+
+</style>
+
 <div class="container">
   <h4>Sample Images {% if sample.images %}({{ sample.images|length }}) {% endif %}</h4>
     <div class="img-grid">
@@ -121,8 +295,82 @@
       {% endfor %}
       {% endif %}
 
-  </div>
 </div>
+
+        <div id="addFile" class="upload-box">
+        <form action="" id="inputForm" method="POST" enctype="multipart/form-data" style="width:100%; height:100%;">
+          <label for = "inputFile" class="upload-label"> <i class="fa fa-upload" style="margin: 4px;"> </i> Add files...</label>
+          <input type="file" name="inputFile" id="inputFile" multiple=50 onchange="handleUpload(this)" class="upload-button" value="">
+
+               <div id="uploadOverlay" class="modal">
+
+                <div id="uploadPanel" class="img-panel" style="width: 70%; height: 70%">
+                  <div class="top-box">
+
+                  <div id="imageContainer" class="img-container">
+
+
+
+
+                  <div class="img-holder">
+
+                     <div class="arrow-box" id="btnPrevUpload" onclick="prevUpload()" style="left:0;">
+                        <i class="fa fa-angle-left"></i>
+                     </div>
+
+                    <img src = "" id="selectedImage">
+
+                    <div id="imageCounter" class="counter-box">
+                      <p id="numCurrent">0</p> <p>/</p> <p id="numTotal"> 0 </p>
+                    </div>
+
+                    <div class="arrow-box" onclick="nextUpload()" style="right:0;">
+                      <i class="fa fa-angle-right" id="btnNextUpload"></i>
+                    </div>
+
+                  </div>
+
+
+
+
+                  <div id="imageInfoContainer" class="img-info-container" style="display: flex; flex-direction: column; align-items: center; width:25%;">
+
+
+                      <div style="width:100%;">
+                      <p>Description: </p>
+                      <input type="text" id="imageDescription" style="width: 85%;">
+                      </div>
+
+                      <div style="width:100%;">
+                      <p> Image Type: </p>
+                      <select name="imageType" id="imageType" class="chosen-select" style="width:85%">
+                              <option value="1" selected="selected">Image Map</option>
+                              <option value="2">X-Ray</option>
+                      </select>
+                      </div>
+
+                      <hr>
+                      <div id="actionButtons" style="display: flex; justify-content: flex-end; justify-self: flex-end; width:100%;">
+                      <input type="button" value="OK" onclick="postUpload()" style="background-color:#444444; border-style: solid; color: #EAEAEA; width: 60px; height: 30px;">
+                      <input type="reset" value="Cancel" onclick="clearUpload()" style="border-style: solid; color: #444444; background-color: #FAFAFA; width: 60px; height: 30px;">
+                      </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+                 </div>
+
+                 </div>
+
+
+        </form>
+
+      </div>
+  </div>
+
+
+
 
 <div id="includeImageViewer"></div>
 
