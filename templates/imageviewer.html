@@ -33,13 +33,32 @@
                 <i class="fa fa-window-close" onclick="overlay_off()"></i>
               </div>
 
+              <form action="" name="formUpdateImage "id="formUpdateImage" method="POST">
+              <input type="hidden" name="formName" value="updateForm">
               <div id="imageTypeContent" class="imageTypeContainer">
                   <h4>Image Type </h4>
-                  <p id="imageTypeText">Image Type</p>
+                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%">
+                              {% for t in image_types %}
+                                <option value="{{ t.id }}">{{ t.image_type }}</option>
+                              {% endfor %}
+                    </select>
               </div>
 
               <hr>
 
+              <div id="imageDescription" class="imageTypeContainer">
+                  <h4>Image Description</h4>
+                  <textarea id="imageDescriptionText" maxlength="255" rows="8" style="width: 100%; resize: none;"></textarea>
+              </div>
+
+
+              <div id="updateFormButtons" style="display:flex; justify-content: flex-end;">
+                  <input type="button" value="Save changes" onclick="postImageUpdate()" class="button-dark" style="width: auto;">
+                  <input type="button" value="Reset" class="button-light" onclick="resetImageUpdate()">
+              </div>
+              </form>
+
+              <hr>
               <div class="img-info-comments-container" id="imgComments">
                 <h4>Comments</h4>
               </div>

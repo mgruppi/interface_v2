@@ -201,3 +201,19 @@
 
 }
 
+
+.button-dark{
+    background-color: #444444;
+    border-style: solid;
+    color: #EAEAEA;
+    width: 60px;
+    height: 30px;
+}
+
+.button-light{
+    border-style: solid;
+    color: #444444;
+    background-color: #FAFAFA;
+    width: 60px;
+    height: 30px;
+}

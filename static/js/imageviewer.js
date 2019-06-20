@@ -15,7 +15,8 @@ function setCurrentImage(currentImage){
   img.src = images[currentImage]["url"];
   img.width = img.naturalWidth;
   img.height = img.naturalHeight;
-  document.getElementById("imageTypeText").innerHTML = images[currentImage]["type"];
+  $('#imageTypeSelect').val(images[currentImage].type);
+  document.getElementById("imageDescriptionText").value = images[currentImage]["description"]
 
 }
 
@@ -52,6 +53,32 @@ function toggleFit(){
     }
 }
 
+
+function postImageUpdate()
+{
+    var form = document.getElementById("formUpdateImage");
+
+    var descr = document.createElement("input");
+    descr.type="hidden";
+    descr.name = "description";
+    descr.value = document.getElementById("imageDescriptionText").value;
+
+    var type = document.createElement("input");
+    type.type = "hidden";
+    type.name = "type";
+    type.value = document.getElementById("imageTypeSelect").value;
+
+    var img_id = document.createElement("input");
+    img_id.type = "hidden";
+    img_id.name = "id";
+    img_id.value = images[currentImage]["id"];
+
+    form.appendChild(descr);
+    form.appendChild(img_id);
+    form.appendChild(type);
+
+    form.submit();
+}
 
 window.onclick = function(event)
 {
