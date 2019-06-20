@@ -213,6 +213,29 @@
       form.appendChild(type);
     }
     form.submit();
+    form.reset();
+  }
+
+
+  // Handles collapsing/expanding image grid
+  function toggleGridCollapse()
+  {
+    var grid = document.getElementById("imageGrid");
+    var collapseIcon = document.getElementById("collapseIcon");
+    var expandIcon = document.getElementById("expandIcon");
+
+    // Handle display of grid and icons
+    if (grid.style.display != "none"){
+      grid.style.display = "none";
+      collapseIcon.style.display = "none";
+      expandIcon.style.display = "block";
+    }
+    else{
+      grid.style.display = "flex";
+      collapseIcon.style.display="block";
+      expandIcon.style.display="none";
+
+    }
   }
 
 
@@ -259,34 +282,44 @@
   }
 
   .counter-box{
-    position: absolute;
-    z-index: 1;
-    width: 80px;
-    height: 30px;
-    background-color: #444444;
-    border-style: groove;
-    border-width: thin;
     display: flex;
     justify-content: center;
-    align-self: flex-end;
   }
 
   .counter-box p{
-    color: #EAEAEA;
     font-size: 24px;
     letter-spacing: 0.2em;
   }
 
+  .collapse-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #444444;
+    font-size: 24px;
+    margin: 8px;
+
+  }
+
+  .collapse-button:hover{
+    cursor: pointer;
+    filter: invert(100%);
+  }
+
 </style>
 
+<div id="gridTitle" style="display: flex; flex-direction:row;">
+  <h4>Sample Images {% if sample.images %}({{ sample.images|length }}) {% endif %} </h4>
+  <div class="collapse-button" onclick="toggleGridCollapse()"><i class="fa fa-angle-up" id="collapseIcon"></i><i class ="fa fa-angle-down" id="expandIcon" style="display: none;"></i></div>
+</div>
 <div class="container">
-  <h4>Sample Images {% if sample.images %}({{ sample.images|length }}) {% endif %}</h4>
-    <div class="img-grid">
+
+    <div class="img-grid" id="imageGrid">
 
       {% if sample.images %} {%for image in sample.images %}
       <script>
-        images.push({"url":"{{ image.image.full_size }}", "description": "{{ image.image_type.comments }}",
-        "type": "{{ image.image_type.image_type }}" });
+        images.push({"id": "{{ image.id }}", "url":"{{ image.image.full_size }}", "description": "{{ image.description }}",
+        "type": "{{ image.image_type.id }}" });
       </script>
         <div class="thumbnail" id="{{ loop.index-1 }}">
           <img src = "{{ image.image.full_size }}" style="width:100%; height:200px" class="sampleimg"
@@ -295,12 +328,13 @@
       {% endfor %}
       {% endif %}
 
-</div>
+    </div>
 
         <div id="addFile" class="upload-box">
-        <form action="" id="inputForm" method="POST" enctype="multipart/form-data" style="width:100%; height:100%;">
+        <form action="" id="inputForm" name="uploadForm" method="POST" enctype="multipart/form-data" style="width:100%; height:100%;">
+            <input type="hidden" name="formName" value="uploadForm">
           <label for = "inputFile" class="upload-label"> <i class="fa fa-upload" style="margin: 4px;"> </i> Add files...</label>
-          <input type="file" name="inputFile" id="inputFile" multiple=50 onchange="handleUpload(this)" class="upload-button" value="">
+          <input type="file" name="inputFile" id="inputFile" accept="image/*" multiple=50 onchange="handleUpload(this)" class="upload-button" value="">
 
                <div id="uploadOverlay" class="modal">
 
@@ -308,9 +342,6 @@
                   <div class="top-box">
 
                   <div id="imageContainer" class="img-container">
-
-
-
 
                   <div class="img-holder">
 
@@ -320,10 +351,6 @@
 
                     <img src = "" id="selectedImage">
 
-                    <div id="imageCounter" class="counter-box">
-                      <p id="numCurrent">0</p> <p>/</p> <p id="numTotal"> 0 </p>
-                    </div>
-
                     <div class="arrow-box" onclick="nextUpload()" style="right:0;">
                       <i class="fa fa-angle-right" id="btnNextUpload"></i>
                     </div>
@@ -331,21 +358,32 @@
                   </div>
 
 
-
-
                   <div id="imageInfoContainer" class="img-info-container" style="display: flex; flex-direction: column; align-items: center; width:25%;">
 
+                      <h3>Image Upload</h3>
+
+                      <div id="imageCounter" class="counter-box">
+                        <p id="numCurrent">0</p> <p>/</p> <p id="numTotal"> 0 </p>
+                      </div>
+
+
+                      <hr>
 
                       <div style="width:100%;">
                       <p>Description: </p>
-                      <input type="text" id="imageDescription" style="width: 85%;">
+                          <textarea id="imageDescription" maxlength="255" rows="8" style="width: 100%; resize: none;"></textarea>
                       </div>
 
                       <div style="width:100%;">
                       <p> Image Type: </p>
                       <select name="imageType" id="imageType" class="chosen-select" style="width:85%">
-                              <option value="1" selected="selected">Image Map</option>
-                              <option value="2">X-Ray</option>
+                              {% for t in image_types %}
+                                {% if t.image_type == 'Image' %}
+                                    <option value="{{ t.id }}" selected="selected">{{ t.image_type }}</option>
+                                {% else %}
+                                    <option value="{{ t.id }}">{{ t.image_type }}</option>
+                                {% endif %}
+                              {% endfor %}
                       </select>
                       </div>
 
@@ -371,8 +409,7 @@
 
 
 
-
-<div id="includeImageViewer"></div>
+{% include 'imageviewer.html' %}
 
 <hr>
 <h4>Subsamples{% if auth_token %}<span style="float:right"><a href="{{ url_for('edit_subsample', id='new')}}?sample_id={{ sample.id }}">Add Subsample</a></span>{% endif %}</h4>
@@ -395,7 +432,7 @@
         <td id="img-popup"><a href="{{ url_for('subsample', id=subsample.id) }}">{{ subsample.name }}</a></td>
         <td>{{ subsample.public_data }}</td>
         <td>{{ subsample.subsample_type.name }}</td>
-        <td>{{ subsample.images }}</td>
+        <td>{{ subsample.image_count }}</td>
         <td>{{ subsample.chemical_analyses|length }}</td>
         <td><a href="{{ url_for('user', email=email) }}" target="_blank">{{ sample.owner.name }}</a></td>
         <td> -- </td>

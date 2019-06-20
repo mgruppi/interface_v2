@@ -16,10 +16,14 @@ from flask import (
 from flask_mail import Mail, Message
 from utilities import paginate_model, combine_identical_parameters, handle_fields
 
+import os
+
 mail = Mail()
 metpet_ui = Flask(__name__)
 metpet_ui.config.from_object("config")
 mail.init_app(metpet_ui)
+
+metpet_ui.config["UPLOAD_FOLDER"] = "./temp"
 
 dotenv.read_dotenv("../app_variables.env")
 
@@ -277,12 +281,49 @@ def samples():
     )
 
 
-@metpet_ui.route("/sample/<string:id>")
+@metpet_ui.route("/sample/<string:id>", methods=["GET", "POST"])
 def sample(id):
     #headers! to authenticate user during API calls (for private data and to add/edit their samples)
     headers = None
     if session.get("auth_token", None):
         headers = {"Authorization": "Token "+session.get("auth_token")}
+
+    print(request.method)
+
+    if request.method == "POST":
+        files = dict(request.files)
+        form = dict(request.form)
+
+        if "formName" in form:
+            formName = form["formName"][0]
+            if formName == "uploadForm":  # Image upload is happening
+                img_files = files["inputFile"]
+                img_type = form["type"]
+                img_description = form["description"]
+
+                for i in range(len(img_files)):
+                    img_data = dict()
+                    img_data["description"] = img_description[i]
+                    img_data["image_type"] = img_type[i]
+                    img_data["sample"] = id
+                    img_data["owner"] = session.get("id", None)
+                    img_file = {"image": img_files[i]}
+                    img_files[i].name = img_files[i].filename
+
+                    response = post(env("API_HOST") + "images/", data=img_data, files=img_file, headers=headers)
+
+                    print(response)
+
+            elif formName == "updateForm":  # Image update is happening (type and/or description)
+                data = dict()
+                data["description"] = form["description"][0]
+                data["sample"] = id
+                data["image_type"] = form["type"][0]
+                data["owner"] = session.get("id", None)
+                response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
+                print(response)
+            else:
+                print("Invalid form name.")
 
     #get the sample the usual way and return error message if something went wrong
     sample = get(env("API_HOST")+"samples/"+id+"/", params = {"format": "json"}, headers = headers).json()
@@ -294,14 +335,21 @@ def sample(id):
     subsamples = []
     for s in sample["subsample_ids"]:
         subsamples.append(get(env("API_HOST")+"subsamples/"+s,
-            params = {"fields": "subsample_type,name,id,public_data,owner", "format": "json"}, headers = headers).json())
+            params = {"fields": "subsample_type,name,id,public_data,owner,images", "format": "json"}, headers = headers).json())
     for s in subsamples:
         s["chemical_analyses"] = get(env("API_HOST")+"chemical_analyses/",
             params = {"subsample_ids": s["id"], "fields": "id", "format": "json"}, headers = headers).json()["results"]
 
+        s["image_count"] = len(s["images"])
+        del(s["images"])
+
+    image_types = get(env("API_HOST") + "image_types/", params={"fields": "id, image_type", "format": "json"}, headers=headers).json()["results"]
+    image_types.sort(key = lambda x: x["image_type"])  # Sort types alphabetically for display
+
     return render_template("sample.html",
         sample = sample,
         subsamples = subsamples,
+        image_types = image_types,
         auth_token = session.get("auth_token",None),
         email = session.get("email",None),
         name = session.get("name",None)
