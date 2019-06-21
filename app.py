@@ -309,7 +309,7 @@ def sample(id):
                     img_data["owner"] = session.get("id", None)
                     img_file = {"image": img_files[i]}
                     img_files[i].name = img_files[i].filename
-
+                    print(img_data)
                     response = post(env("API_HOST") + "images/", data=img_data, files=img_file, headers=headers)
 
                     print(response)
@@ -320,6 +320,7 @@ def sample(id):
                 data["sample"] = id
                 data["image_type"] = form["type"][0]
                 data["owner"] = session.get("id", None)
+                print(data)
                 response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
                 print(response)
             else:

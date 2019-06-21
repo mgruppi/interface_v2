@@ -314,97 +314,10 @@
 </div>
 <div class="container">
 
-    <div class="img-grid" id="imageGrid">
+    {% set s = sample %}
+    {% include "imagegrid.html" %}
+    {% include "imageupload.html" %}
 
-      {% if sample.images %} {%for image in sample.images %}
-      <script>
-        images.push({"id": "{{ image.id }}", "url":"{{ image.image.full_size }}", "description": "{{ image.description }}",
-        "type": "{{ image.image_type.id }}" });
-      </script>
-        <div class="thumbnail" id="{{ loop.index-1 }}">
-          <img src = "{{ image.image.full_size }}" style="width:100%; height:200px" class="sampleimg"
-               onclick="overlay_on({{loop.index-1}})">
-      </div>
-      {% endfor %}
-      {% endif %}
-
-    </div>
-
-        <div id="addFile" class="upload-box">
-        <form action="" id="inputForm" name="uploadForm" method="POST" enctype="multipart/form-data" style="width:100%; height:100%;">
-            <input type="hidden" name="formName" value="uploadForm">
-          <label for = "inputFile" class="upload-label"> <i class="fa fa-upload" style="margin: 4px;"> </i> Add files...</label>
-          <input type="file" name="inputFile" id="inputFile" accept="image/*" multiple=50 onchange="handleUpload(this)" class="upload-button" value="">
-
-               <div id="uploadOverlay" class="modal">
-
-                <div id="uploadPanel" class="img-panel" style="width: 70%; height: 70%">
-                  <div class="top-box">
-
-                  <div id="imageContainer" class="img-container">
-
-                  <div class="img-holder">
-
-                     <div class="arrow-box" id="btnPrevUpload" onclick="prevUpload()" style="left:0;">
-                        <i class="fa fa-angle-left"></i>
-                     </div>
-
-                    <img src = "" id="selectedImage">
-
-                    <div class="arrow-box" onclick="nextUpload()" style="right:0;">
-                      <i class="fa fa-angle-right" id="btnNextUpload"></i>
-                    </div>
-
-                  </div>
-
-
-                  <div id="imageInfoContainer" class="img-info-container" style="display: flex; flex-direction: column; align-items: center; width:25%;">
-
-                      <h3>Image Upload</h3>
-
-                      <div id="imageCounter" class="counter-box">
-                        <p id="numCurrent">0</p> <p>/</p> <p id="numTotal"> 0 </p>
-                      </div>
-
-
-                      <hr>
-
-                      <div style="width:100%;">
-                      <p>Description: </p>
-                          <textarea id="imageDescription" maxlength="255" rows="8" style="width: 100%; resize: none;"></textarea>
-                      </div>
-
-                      <div style="width:100%;">
-                      <p> Image Type: </p>
-                      <select name="imageType" id="imageType" class="chosen-select" style="width:85%">
-                              {% for t in image_types %}
-                                {% if t.image_type == 'Image' %}
-                                    <option value="{{ t.id }}" selected="selected">{{ t.image_type }}</option>
-                                {% else %}
-                                    <option value="{{ t.id }}">{{ t.image_type }}</option>
-                                {% endif %}
-                              {% endfor %}
-                      </select>
-                      </div>
-
-                      <hr>
-                      <div id="actionButtons" style="display: flex; justify-content: flex-end; justify-self: flex-end; width:100%;">
-                      <input type="button" value="OK" onclick="postUpload()" style="background-color:#444444; border-style: solid; color: #EAEAEA; width: 60px; height: 30px;">
-                      <input type="reset" value="Cancel" onclick="clearUpload()" style="border-style: solid; color: #444444; background-color: #FAFAFA; width: 60px; height: 30px;">
-                      </div>
-
-                      </div>
-
-                    </div>
-                  </div>
-                 </div>
-
-                 </div>
-
-
-        </form>
-
-      </div>
   </div>
 
 
