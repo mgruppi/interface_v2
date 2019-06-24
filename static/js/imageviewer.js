@@ -10,22 +10,29 @@ function overlay_on(e){
 }
 
 
+function setCurrentImageType(type){
+    $('#imageTypeSelect').val(type);
+    handleImageType();
+}
+
 function setCurrentImage(currentImage){
   var img = document.getElementById("displayImage");
   img.src = images[currentImage]["url"];
   img.width = img.naturalWidth;
   img.height = img.naturalHeight;
-  $('#imageTypeSelect').val(images[currentImage].type);
+  setCurrentImageType(images[currentImage].type);
   document.getElementById("imageDescriptionText").value = images[currentImage]["description"]
 
 }
 
 function nextImage(){
+  if (images.length <= 1) return;
   currentImage = (currentImage+1) % images.length;
   setCurrentImage(currentImage);
 }
 
 function previousImage(){
+  if (images.length <= 1) return;
   currentImage = currentImage - 1;
   if (currentImage < 0){
     currentImage = images.length-1;
@@ -57,8 +64,8 @@ function resetImageUpdate()
 {
     // Restore form to default values
     $("#imageDescriptionText").val(images[currentImage]["description"]);
-    $("#imageTypeSelect").val(images[currentImage]["type"]);
-
+    // $("#imageTypeSelect").val(images[currentImage]["type"]);
+    setCurrentImageType(images[currentImage]["type"]);
 }
 
 function postImageUpdate()

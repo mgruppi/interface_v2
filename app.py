@@ -257,8 +257,7 @@ def samples():
         if "regions" in s:
             s["regions"] = (", ").join([m for m in sorted(s["regions"])])
 
-    csv_url = env("API_HOST") + "samples/?" + urlencode(filters) + "&format=csv"        
-
+    csv_url = env("API_HOST") + "samples/?" + urlencode(filters) + "&format=csv"
 
     return render_template("samples.html",
         samples = sample_results,
@@ -347,10 +346,14 @@ def sample(id):
     image_types = get(env("API_HOST") + "image_types/", params={"fields": "id, image_type", "format": "json"}, headers=headers).json()["results"]
     image_types.sort(key = lambda x: x["image_type"])  # Sort types alphabetically for display
 
+    # get list of elements for x-ray images
+    elements = get(env("API_HOST")+"elements/", params={"format":"json"}, headers=headers).json()["results"]
+
     return render_template("sample.html",
         sample = sample,
         subsamples = subsamples,
         image_types = image_types,
+        elements=elements,
         auth_token = session.get("auth_token",None),
         email = session.get("email",None),
         name = session.get("name",None)

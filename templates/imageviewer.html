@@ -1,3 +1,20 @@
+<script>
+
+    function handleImageType(){
+
+        var selected = $("#imageTypeSelect").val();
+
+        if (selected == 13) // id for x-ray
+        {
+            document.getElementById("elementDiv").style = "display: block";
+        }
+        else{
+            document.getElementById("elementDiv").style = "display: none";
+        }
+    }
+
+</script>
+
 
 <div class="modal" id="overlay" >
 
@@ -37,11 +54,20 @@
               <input type="hidden" name="formName" value="updateForm">
               <div id="imageTypeContent" class="imageTypeContainer">
                   <h4>Image Type </h4>
-                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%">
+                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%" onchange="handleImageType()">
                               {% for t in image_types %}
                                 <option value="{{ t.id }}">{{ t.image_type }}</option>
                               {% endfor %}
                     </select>
+                  <div name="elementDiv" id="elementDiv" style="display: none;">
+                  <h5>X-ray element</h5>
+                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%">
+                        {% for e in elements %}
+                          <option value="{{e.id}}">{{ e.symbol }}</option>
+
+                        {% endfor %}
+                      </select>
+                  </div>
               </div>
 
               <hr>
