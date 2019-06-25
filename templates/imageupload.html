@@ -39,7 +39,9 @@
   function handleDragAndDrop(event)
   {
     event.preventDefault();
-    handleUpload(event.dataTransfer);
+
+    if (event.dataTransfer.files.length > 0)
+        handleUpload(event.dataTransfer);
   }
 
   function handleDragOver(event)
