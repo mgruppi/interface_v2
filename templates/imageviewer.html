@@ -104,7 +104,7 @@ $(document).ready(function() {
                     </select>
                   <div name="elementDiv" id="elementDiv" style="display: none;">
                   <h5>X-ray element</h5>
-                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%">
+                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%" onchange="showModifiedLabel()">
                         {% for e in elements %}
                           <option value="{{e.id}}">{{ e.symbol }}</option>
 
