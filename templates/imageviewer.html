@@ -9,6 +9,26 @@
         else{
             elementDiv.style = "display: none";
         }
+
+        showModifiedLabel();
+    }
+
+    function showSavedLabel()
+    {
+        var label = document.getElementById("updatedLabel");
+        label.innerHTML = "Saved";
+        label.style = "display: block; color: #008000; margin-right: 20px";
+    }
+
+    function showModifiedLabel()
+    {
+        var label = document.getElementById("updatedLabel");
+        label.innerHTML = "Changed";
+        label.style = "display: block; color: #FF7F50; margin-right: 20px";
+    }
+
+    function hideUpdatedLabel(){
+        document.getElementById("updatedLabel").style = "display: none";
     }
 
     function saveUpdate(){
@@ -16,6 +36,7 @@
         images[currentImage].description = document.getElementById("imageDescriptionText").value;
         images[currentImage].type = document.getElementById("imageTypeSelect").value;
 
+        showSavedLabel();
     }
 
 $(document).ready(function() {
@@ -30,7 +51,7 @@ $(document).ready(function() {
                     success: saveUpdate()
                 });
 
-                 });
+         });
 } );
 
 
@@ -96,11 +117,12 @@ $(document).ready(function() {
 
               <div id="imageDescription" class="imageTypeContainer">
                   <h4>Image Description</h4>
-                  <textarea id="imageDescriptionText" maxlength="255" rows="8" style="width: 100%; resize: none;"></textarea>
+                  <textarea id="imageDescriptionText" maxlength="255" rows="8" onkeypress="showModifiedLabel()" style="width: 100%; resize: none;"></textarea>
               </div>
 
 
               <div id="updateFormButtons" style="display:flex; justify-content: flex-end;">
+                  <label id="updatedLabel" style="display: none; margin-right: 20px; color: #008000">Saved</label>
                   <input type="submit" value="Save changes" class="button-dark" style="width: auto;">
                   <input type="button" value="Reset" class="button-light" onclick="resetImageUpdate()">
               </div>

@@ -21,7 +21,10 @@ function setCurrentImage(currentImage){
   img.width = img.naturalWidth;
   img.height = img.naturalHeight;
   setCurrentImageType(images[currentImage].type);
-  document.getElementById("imageDescriptionText").value = images[currentImage]["description"]
+  document.getElementById("imageDescriptionText").value = images[currentImage]["description"];
+
+  // Reset updated label
+  hideUpdatedLabel();
 
 }
 
@@ -66,6 +69,7 @@ function resetImageUpdate()
     $("#imageDescriptionText").val(images[currentImage]["description"]);
     // $("#imageTypeSelect").val(images[currentImage]["type"]);
     setCurrentImageType(images[currentImage]["type"]);
+    hideUpdatedLabel();
 }
 
 function postImageUpdate()
