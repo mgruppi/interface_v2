@@ -12,7 +12,7 @@ function overlay_on(e){
 
 function setCurrentImageType(type){
     $('#imageTypeSelect').val(type);
-    handleImageType();
+    handleImageType(document.getElementById("imageTypeSelect"), document.getElementById("elementDiv"));
 }
 
 function setCurrentImage(currentImage){

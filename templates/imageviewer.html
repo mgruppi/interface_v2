@@ -1,15 +1,13 @@
 <script>
 
-    function handleImageType(){
-
-        var selected = $("#imageTypeSelect").val();
-
-        if (selected == 13) // id for x-ray
+    function handleImageType(selectedDiv, elementDiv){
+        var selected =  selectedDiv.value;
+        if (selected == XRAY_TYPE_ID) // id for x-ray
         {
-            document.getElementById("elementDiv").style = "display: block";
+            elementDiv.style = "display: block";
         }
         else{
-            document.getElementById("elementDiv").style = "display: none";
+            elementDiv.style = "display: none";
         }
     }
 
@@ -54,7 +52,7 @@
               <input type="hidden" name="formName" value="updateForm">
               <div id="imageTypeContent" class="imageTypeContainer">
                   <h4>Image Type </h4>
-                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%" onchange="handleImageType()">
+                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%" onchange="handleImageType(imageTypeSelect, elementDiv)">
                               {% for t in image_types %}
                                 <option value="{{ t.id }}">{{ t.image_type }}</option>
                               {% endfor %}

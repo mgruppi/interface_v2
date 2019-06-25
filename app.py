@@ -280,14 +280,48 @@ def samples():
     )
 
 
+# Handles upload of images to endpoints (sample, subsample, or chemical analysis)
+def handle_upload(endpoint, sample_id, form, files, session, headers):
+    XRAY_TYPE_ID = 13  # constant for xray image type
+    img_files = files["inputFile"]
+    img_type = form["type"]
+    img_description = form["description"]
+
+    for i in range(len(img_files)):
+        img_data = dict()
+        img_data["description"] = img_description[i]
+        img_data["image_type"] = img_type[i]
+        if img_type[i] == XRAY_TYPE_ID:  # If image is x-ray, we must upload element
+            print(form["xRayElement"])
+        img_data["sample"] = sample_id
+        img_data["owner"] = session.get("id", None)
+        img_file = {"image": img_files[i]}
+        img_files[i].name = img_files[i].filename
+        print(img_data)
+        response = post(env("API_HOST") + endpoint, data=img_data, files=img_file, headers=headers)
+
+    return response
+
+
+# handle image updates for sample, subsample, chemical analysis
+def handle_update(endpoint, sample_id, form, session, headers):
+    data = dict()
+    data["description"] = form["description"][0]
+    data["sample"] = sample_id
+    data["image_type"] = form["type"][0]
+    data["owner"] = session.get("id", None)
+    response = put(env("API_HOST") + endpoint + form["id"][0] + "/", data=data, headers=headers)
+    return response
+
+
 @metpet_ui.route("/sample/<string:id>", methods=["GET", "POST"])
 def sample(id):
-    #headers! to authenticate user during API calls (for private data and to add/edit their samples)
+    # headers! to authenticate user during API calls (for private data and to add/edit their samples)
     headers = None
     if session.get("auth_token", None):
         headers = {"Authorization": "Token "+session.get("auth_token")}
 
-    print(request.method)
+    errors = []
 
     if request.method == "POST":
         files = dict(request.files)
@@ -296,31 +330,12 @@ def sample(id):
         if "formName" in form:
             formName = form["formName"][0]
             if formName == "uploadForm":  # Image upload is happening
-                img_files = files["inputFile"]
-                img_type = form["type"]
-                img_description = form["description"]
-
-                for i in range(len(img_files)):
-                    img_data = dict()
-                    img_data["description"] = img_description[i]
-                    img_data["image_type"] = img_type[i]
-                    img_data["sample"] = id
-                    img_data["owner"] = session.get("id", None)
-                    img_file = {"image": img_files[i]}
-                    img_files[i].name = img_files[i].filename
-                    print(img_data)
-                    response = post(env("API_HOST") + "images/", data=img_data, files=img_file, headers=headers)
-
-                    print(response)
+                response = handle_upload("images/", id, form, files, session, headers)
+                print(response)
 
             elif formName == "updateForm":  # Image update is happening (type and/or description)
-                data = dict()
-                data["description"] = form["description"][0]
-                data["sample"] = id
-                data["image_type"] = form["type"][0]
-                data["owner"] = session.get("id", None)
-                print(data)
-                response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
+                response = handle_update("images/", id, form, session, headers)
+                # response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
                 print(response)
             else:
                 print("Invalid form name.")
@@ -354,6 +369,7 @@ def sample(id):
         subsamples = subsamples,
         image_types = image_types,
         elements=elements,
+        errors=errors,
         auth_token = session.get("auth_token",None),
         email = session.get("email",None),
         name = session.get("name",None)

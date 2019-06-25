@@ -44,7 +44,7 @@
 
                       <div style="width:100%;">
                       <p> Image Type: </p>
-                      <select name="imageType" id="imageType" class="chosen-select" style="width:85%">
+                      <select name="imageType" id="imageType" class="chosen-select" style="width:85%" onchange="handleImageType(imageType, uploadElement)">
                               {% for t in image_types %}
                                 {% if t.image_type == 'Image' %}
                                     <option value="{{ t.id }}" selected="selected">{{ t.image_type }}</option>
@@ -53,7 +53,20 @@
                                 {% endif %}
                               {% endfor %}
                       </select>
+
+                        <div name="uploadElement" id="uploadElement" style="display: none;">
+                          <h5>X-ray element</h5>
+                              <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%">
+                                {% for e in elements %}
+                                  <option value="{{e.id}}">{{ e.symbol }}</option>
+
+                                {% endfor %}
+                              </select>
+                        </div>
+
                       </div>
+
+
 
                       <hr>
                       <div id="actionButtons" style="display: flex; justify-content: flex-end; justify-self: flex-end; width:100%;">

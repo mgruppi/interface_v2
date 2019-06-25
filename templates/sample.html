@@ -107,6 +107,9 @@
 
 <script>
 
+  var XRAY_TYPE_ID = 13;
+  var IMAGE_TYPE_ID = 0;
+
   var images_to_upload = Array();
   var currentUpload = 0;
 
@@ -115,6 +118,7 @@
     this.image = image;
     this.description = description;
     this.type = type;
+    this.xray_type = 0;
   }
 
   // Handles all the images selected by user
@@ -127,7 +131,7 @@
       {
         var reader = new FileReader();
         reader.onload = function(e){
-          var newImage = new ImageUpload(e.target.result, "", 1);
+          var newImage = new ImageUpload(e.target.result, "", IMAGE_TYPE_ID);
           images_to_upload.push(newImage);
           selectImage(0);
         }
@@ -152,11 +156,17 @@
     currentUpload = i;
     setImageCounter();
     $('#selectedImage').attr('src', images_to_upload[currentUpload].image);
-    $('#imageType').val(images_to_upload[currentUpload].type);
     $('#imageDescription').val(images_to_upload[currentUpload].description);
+    setUploadImageType(images_to_upload[currentUpload].type);
+  }
+
+  function setUploadImageType(type){
+    $('#imageType').val(type);
+    handleImageType(document.getElementById("imageType"), document.getElementById("uploadElement"));
   }
 
   function prevUpload(){
+    if (images_to_upload.length <= 1) return;
     if (currentUpload - 1 < 0) {
       c = images_to_upload.length - 1;
     }
@@ -167,6 +177,7 @@
   }
 
   function nextUpload(){
+    if (images_to_upload.length <= 1) return;
     c = (currentUpload+1) % images_to_upload.length;
     selectImage(c);
   }
@@ -188,6 +199,8 @@
   function clearUpload(){
     uploadOff();
     images_to_upload = [];
+    currentImage = 0;
+
   }
 
   //Checks all images, descriptions and types and post it to server
