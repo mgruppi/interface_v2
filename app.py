@@ -24,6 +24,7 @@ metpet_ui.config.from_object("config")
 mail.init_app(metpet_ui)
 
 metpet_ui.config["UPLOAD_FOLDER"] = "./temp"
+metpet_ui.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # limits maximum size of contents to 16 MB
 
 dotenv.read_dotenv("../app_variables.env")
 

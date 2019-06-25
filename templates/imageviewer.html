@@ -11,6 +11,30 @@
         }
     }
 
+    function saveUpdate(){
+        if (currentImage < 0) return;
+        images[currentImage].description = document.getElementById("imageDescriptionText").value;
+        images[currentImage].type = document.getElementById("imageTypeSelect").value;
+
+    }
+
+$(document).ready(function() {
+        document.getElementById("formUpdateImage").addEventListener("submit", function(event){
+                event.preventDefault()
+
+                var form = $("#formUpdateImage");
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: form.serialize(),
+                    success: saveUpdate()
+                });
+
+                 });
+} );
+
+
+
 </script>
 
 
@@ -48,7 +72,7 @@
                 <i class="fa fa-window-close" onclick="overlay_off()"></i>
               </div>
 
-              <form action="" name="formUpdateImage "id="formUpdateImage" method="POST">
+              <form action="" name="formUpdateImage "id="formUpdateImage" method="POST" onsubmit="postImageUpdate()">
               <input type="hidden" name="formName" value="updateForm">
               <div id="imageTypeContent" class="imageTypeContainer">
                   <h4>Image Type </h4>
@@ -77,7 +101,7 @@
 
 
               <div id="updateFormButtons" style="display:flex; justify-content: flex-end;">
-                  <input type="button" value="Save changes" onclick="postImageUpdate()" class="button-dark" style="width: auto;">
+                  <input type="submit" value="Save changes" class="button-dark" style="width: auto;">
                   <input type="button" value="Reset" class="button-light" onclick="resetImageUpdate()">
               </div>
               </form>

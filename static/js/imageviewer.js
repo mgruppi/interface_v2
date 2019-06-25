@@ -90,37 +90,9 @@ function postImageUpdate()
     form.appendChild(descr);
     form.appendChild(img_id);
     form.appendChild(type);
-
-    form.submit();
+    // form.submit();
  }
 
-
-//AJAX POST
-//$("#formUpdateImage").submit(
-//    function(event){
-//        event.preventDefault(); // Do not allow default action to happen
-//        var post_url = $(this).attr("action");
-//        var request_method = $(this).attr("method");
-//        var form_data = $(this).serialize(); // Encode data
-//
-//        alert(form_data);
-//
-//        $.ajax(
-//            {
-//                url: post_url,
-//                type: request_method,
-//                data: form_data,
-//                success: function(data){
-//                    alert("success");
-//                },
-//                error: function(jxHR, textStatus, errorThrown)
-//                {
-//                    alert(errorThrown);
-//                }
-//            }
-//        );
-//    }
-//);
 
 window.onclick = function(event)
 {
