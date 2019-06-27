@@ -287,7 +287,7 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
     img_files = files["inputFile"]
     img_type = form["type"]
     img_description = form["description"]
-
+    responses = []
     for i in range(len(img_files)):
         img_data = dict()
         img_data["description"] = img_description[i]
@@ -300,8 +300,8 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
         img_files[i].name = img_files[i].filename
         print(img_data)
         response = post(env("API_HOST") + endpoint, data=img_data, files=img_file, headers=headers)
-
-    return response
+        responses.append(response)
+    return responses
 
 
 # handle image updates for sample, subsample, chemical analysis
@@ -331,8 +331,8 @@ def sample(id):
         if "formName" in form:
             formName = form["formName"][0]
             if formName == "uploadForm":  # Image upload is happening
-                response = handle_upload("images/", id, form, files, session, headers)
-                print(response)
+                responses = handle_upload("images/", id, form, files, session, headers)
+                print(responses)
 
             elif formName == "updateForm":  # Image update is happening (type and/or description)
                 response = handle_update("images/", id, form, session, headers)
