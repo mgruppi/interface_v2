@@ -294,12 +294,12 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
         img_data["image_type"] = img_type[i]
         if img_type[i] == XRAY_TYPE_ID:  # If image is x-ray, we must upload element
             print(form["xRayElement"])
-        img_data["sample"] = sample_id
+        img_data[endpoint] = sample_id
         img_data["owner"] = session.get("id", None)
         img_file = {"image": img_files[i]}
         img_files[i].name = img_files[i].filename
         print(img_data)
-        response = post(env("API_HOST") + endpoint, data=img_data, files=img_file, headers=headers)
+        response = post(env("API_HOST") + "images/", data=img_data, files=img_file, headers=headers)
         responses.append(response)
     return responses
 
@@ -308,10 +308,10 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
 def handle_update(endpoint, sample_id, form, session, headers):
     data = dict()
     data["description"] = form["description"][0]
-    data["sample"] = sample_id
+    data[endpoint] = sample_id
     data["image_type"] = form["type"][0]
     data["owner"] = session.get("id", None)
-    response = put(env("API_HOST") + endpoint + form["id"][0] + "/", data=data, headers=headers)
+    response = put(env("API_HOST") + "images/" + form["id"][0] + "/", data=data, headers=headers)
     return response
 
 
@@ -331,11 +331,11 @@ def sample(id):
         if "formName" in form:
             formName = form["formName"][0]
             if formName == "uploadForm":  # Image upload is happening
-                responses = handle_upload("images/", id, form, files, session, headers)
+                responses = handle_upload("sample", id, form, files, session, headers)
                 print(responses)
 
             elif formName == "updateForm":  # Image update is happening (type and/or description)
-                response = handle_update("images/", id, form, session, headers)
+                response = handle_update("sample", id, form, session, headers)
                 # response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
                 print(response)
             else:
@@ -468,11 +468,29 @@ def edit_sample(id):
     )
 
 
-@metpet_ui.route("/subsample/<string:id>")
+@metpet_ui.route("/subsample/<string:id>", methods=["GET", "POST"])
 def subsample(id):
     headers = None
     if session.get("auth_token", None):
         headers = {"Authorization": "Token "+session.get("auth_token")}
+
+
+    if request.method == "POST":
+        files = dict(request.files)
+        form = dict(request.form)
+
+        if "formName" in form:
+            formName = form["formName"][0]
+            if formName == "uploadForm":  # Image upload is happening
+                responses = handle_upload("subsample", id, form, files, session, headers)
+                print(responses)
+
+            elif formName == "updateForm":  # Image update is happening (type and/or description)
+                response = handle_update("subsample", id, form, session, headers)
+                # response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
+                print(response)
+            else:
+                print("Invalid form name.")
 
     #get subsample info
     subsample = get(env("API_HOST")+"subsamples/"+id+"/", params = {"format": "json"}, headers = headers).json()
@@ -482,9 +500,21 @@ def subsample(id):
 
     chemical_analyses = get(env("API_HOST")+"chemical_analyses/", params = {"subsample_ids": subsample["id"], "format": "json"},headers=headers).json()["results"]
 
+
+    # Get image type data
+    # Image data
+    image_types = get(env("API_HOST") + "image_types/", params={"fields": "id, image_type", "format": "json"}, headers=headers).json()["results"]
+    image_types.sort(key = lambda x: x["image_type"])  # Sort types alphabetically for display
+
+    # get list of elements for x-ray images
+    elements = get(env("API_HOST")+"elements/", params={"format":"json"}, headers=headers).json()["results"]
+
+
     return render_template("subsample.html",
         subsample = subsample,
         chemical_analyses = chemical_analyses,
+        image_types=image_types,
+        elements=elements,
         auth_token = session.get("auth_token",None),
         email = session.get("email",None),
         name = session.get("name",None)

@@ -23,7 +23,7 @@
     function showModifiedLabel()
     {
         var label = document.getElementById("updatedLabel");
-        label.innerHTML = "Changed";
+        label.innerHTML = "Changes not saved";
         label.style = "display: block; color: #FF7F50; margin-right: 20px";
     }
 
@@ -117,7 +117,7 @@ $(document).ready(function() {
 
               <div id="imageDescription" class="imageTypeContainer">
                   <h4>Image Description</h4>
-                  <textarea id="imageDescriptionText" maxlength="255" rows="8" onkeypress="showModifiedLabel()" style="width: 100%; resize: none;"></textarea>
+                  <textarea id="imageDescriptionText" maxlength="255" rows="8" onkeyup="showModifiedLabel()" style="width: 100%; resize: none;"></textarea>
               </div>
 
 

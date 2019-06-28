@@ -106,13 +106,14 @@
   <h4>Sample Images {% if sample.images %}({{ sample.images|length }}) {% endif %} </h4>
   <div class="collapse-button" onclick="toggleGridCollapse()"><i class="fa fa-angle-up" id="collapseIcon"></i><i class ="fa fa-angle-down" id="expandIcon" style="display: none;"></i></div>
 </div>
+
 <div class="container">
 
     {% set s = sample %}
     {% include "imagegrid.html" %}
     {% include "imageupload.html" %}
 
-  </div>
+</div>
 
 
 

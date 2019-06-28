@@ -39,25 +39,37 @@
 <hr>
 
 <div class="container">
-  <h4>Subsample Images {% if subsample.images %}({{ subsample.images|length }}) {% endif %}</h4>
-    <div class="img-grid">
 
-      {% if subsample.images %} {%for image in subsample.images %}
-      <script>
-        images.push({"url":"{{ image.image.full_size }}", "description": "{{ image.image_type.comments }}",
-        "type": "{{ image.image_type.image_type }}" });
-      </script>
-        <div class="thumbnail" id="{{ loop.index-1 }}">
-          <img src = "{{ image.image.full_size }}" style="width:100%; height:200px" class="sampleimg"
-               onclick="overlay_on({{loop.index-1}})">
-      </div>
-      {% endfor %}
-      {% endif %}
+    {% set s = subsample %}
+    {% include "imagegrid.html" %}
+    {% include "imageupload.html" %}
 
-  </div>
 </div>
 
-<div id="includeImageViewer"></div>
+
+
+{% include 'imageviewer.html' %}
+
+<!--<div class="container">-->
+<!--  <h4>Subsample Images {% if subsample.images %}({{ subsample.images|length }}) {% endif %}</h4>-->
+<!--    <div class="img-grid">-->
+
+<!--      {% if subsample.images %} {%for image in subsample.images %}-->
+<!--      <script>-->
+<!--        images.push({"url":"{{ image.image.full_size }}", "description": "{{ image.image_type.comments }}",-->
+<!--        "type": "{{ image.image_type.image_type }}" });-->
+<!--      </script>-->
+<!--        <div class="thumbnail" id="{{ loop.index-1 }}">-->
+<!--          <img src = "{{ image.image.full_size }}" style="width:100%; height:200px" class="sampleimg"-->
+<!--               onclick="overlay_on({{loop.index-1}})">-->
+<!--      </div>-->
+<!--      {% endfor %}-->
+<!--      {% endif %}-->
+
+<!--  </div>-->
+<!--</div>-->
+
+<!--<div id="includeImageViewer"></div>-->
 
 
 
