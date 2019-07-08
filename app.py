@@ -55,12 +55,13 @@ def help():
 @metpet_ui.route("/search/")
 def search():
     filters = dict(request.args)
-    print "Search arguments: ",request.args
+    print "Search arguments: ", request.args
     print "Session data: ", session
     #get all filter options from API, use format = json and minimum page sizes to speed it up
     if request.args.get("resource") == "samples":
         #resource value set in search_form.html, appends samples.html to bottom of page
         fixedListArgs = combine_identical_parameters(request.args.iteritems(multi=True))
+        print(fixedListArgs)
         return redirect(url_for("samples")+"?"+urlencode(fixedListArgs))
 
     if request.args.get("resource") == "chemical_analyses":
@@ -70,12 +71,20 @@ def search():
         fixedListArgs = combine_identical_parameters(request.args.iteritems(multi=True))
         return redirect(url_for("chemical_analyses")+"?"+urlencode(fixedListArgs)+"&sample_filters=True")
 
+    my_samples = None
+    if "my_samples" in filters:
+        my_samples = get(env("API_HOST")+"samples/?&emails="+session.get("email", None), params={"format":"json"}).json()
+    else:
+        print "searching"
+
+
+
     #get all filter options from API, use format = json and minimum page sizes to speed it up
     regions = get(env("API_HOST")+"regions/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
     minerals = get(env("API_HOST")+"minerals/", params = {"fields": "name", "page_size": 200, "format": "json"}).json()["results"]
     rock_types = get(env("API_HOST")+"rock_types/", params = {"fields": "name", "page_size": 40, "format": "json"}).json()["results"]
-    collectors = get(env("API_HOST")+"collectors/", params = {"fields": "name", "page_size": 140, "format": "json"}).json()["results"]
-    references = get(env("API_HOST")+"references/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
+    # collectors = get(env("API_HOST")+"collectors/", params = {"fields": "name", "page_size": 140, "format": "json"}).json()["results"]
+    # references = get(env("API_HOST")+"references/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
     metamorphic_grades = get(env("API_HOST")+"metamorphic_grades/", params = {"fields": "name", "page_size": 30, "format": "json"}).json()["results"]
     metamorphic_regions = get(env("API_HOST")+"metamorphic_regions/", params = {"fields": "name", "page_size": 240, "format": "json"}).json()["results"]
     fields_dict = {'Subsamples':'subsample_ids', 'Chemical Analyses':'chemical_analyses_ids', 'Collector':'collector_name', 'Images':'images', 'Owner':'owner', 'Regions':'regions', \
@@ -86,23 +95,23 @@ def search():
                 'Rock Type':'rock_type__name', \
                 'Chemical Analyses':'chemical_analyses'}
     countries = get(env("API_HOST")+"country_names/", params = {"format": "json"}).json()["country_names"]
-    numbers = get(env("API_HOST")+"sample_numbers/", params = {"format": "json"}).json()["sample_numbers"]
-    owners = get(env("API_HOST")+"sample_owner_names/", params = {"format": "json"}).json()["sample_owner_names"]
-    my_samples = filters['my_samples'] if 'my_samples' in filters else False      
+    # numbers = get(env("API_HOST")+"sample_numbers/", params = {"format": "json"}).json()["sample_numbers"]
+    # owners = get(env("API_HOST")+"sample_owner_names/", params = {"format": "json"}).json()["sample_owner_names"]
+    # my_samples = filters['my_samples'] if 'my_samples' in filters else False
     return render_template("search_form.html",
         regions = regions,
         minerals = minerals,
         rock_types = rock_types,
-        collectors = collectors,
-        references = references,
+        # collectors = collectors,
+        # references = references,
         metamorphic_grades = metamorphic_grades,
         metamorphic_regions = metamorphic_regions,
         sorting_dict = sorted(sorting_dict),
         fields = sorted(fields_dict.keys()),
         countries = countries,
-        numbers = sorted(numbers),
+        # numbers = sorted(numbers),
         my_samples = my_samples,
-        owners = sorted(set(owners)),
+        # owners = sorted(set(owners)),
         auth_token = session.get("auth_token",None),
         email = session.get("email",None),
         name = session.get("name",None)
