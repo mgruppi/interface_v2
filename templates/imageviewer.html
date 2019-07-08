@@ -93,18 +93,19 @@ $(document).ready(function() {
                 <i class="fa fa-window-close" onclick="overlay_off()"></i>
               </div>
 
+
               <form action="" name="formUpdateImage "id="formUpdateImage" method="POST" onsubmit="postImageUpdate()">
               <input type="hidden" name="formName" value="updateForm">
               <div id="imageTypeContent" class="imageTypeContainer">
                   <h4>Image Type </h4>
-                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%" onchange="handleImageType(imageTypeSelect, elementDiv)">
+                    <select name="imageTypeSelect" id="imageTypeSelect" class="chosen-select" style="width:85%" onchange="handleImageType(imageTypeSelect, elementDiv)" {% if auth_token and not edit_permission %} disabled {% endif %}>
                               {% for t in image_types %}
                                 <option value="{{ t.id }}">{{ t.image_type }}</option>
                               {% endfor %}
                     </select>
                   <div name="elementDiv" id="elementDiv" style="display: none;">
                   <h5>X-ray element</h5>
-                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%" onchange="showModifiedLabel()">
+                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%" onchange="showModifiedLabel()" {% if auth_token and not edit_permission %} disabled {% endif %}>
                         {% for e in elements %}
                           <option value="{{e.id}}">{{ e.symbol }}</option>
 
@@ -117,16 +118,18 @@ $(document).ready(function() {
 
               <div id="imageDescription" class="imageTypeContainer">
                   <h4>Image Description</h4>
-                  <textarea id="imageDescriptionText" maxlength="255" rows="8" onkeyup="showModifiedLabel()" style="width: 100%; resize: none;"></textarea>
+                  <textarea id="imageDescriptionText" maxlength="255" rows="8" onkeyup="showModifiedLabel()" style="width: 100%; resize: none;" {% if auth_token and not edit_permission %} disabled {% endif %}></textarea>
               </div>
 
-
-              <div id="updateFormButtons" style="display:flex; justify-content: flex-end;">
-                  <label id="updatedLabel" style="display: none; margin-right: 20px; color: #008000">Saved</label>
-                  <input type="submit" value="Save changes" class="button-dark" style="width: auto;">
-                  <input type="button" value="Reset" class="button-light" onclick="resetImageUpdate()">
-              </div>
+                {% if auth_token and edit_permission %}
+                  <div id="updateFormButtons" style="display:flex; justify-content: flex-end;">
+                      <label id="updatedLabel" style="display: none; margin-right: 20px; color: #008000">Saved</label>
+                      <input type="submit" value="Save changes" class="button-dark" style="width: auto;">
+                      <input type="button" value="Reset" class="button-light" onclick="resetImageUpdate()">
+                  </div>
+               {% endif %}
               </form>
+
 
               <hr>
               <div class="img-info-comments-container" id="imgComments">

@@ -371,9 +371,10 @@ def sample(id):
         image_types = image_types,
         elements=elements,
         errors=errors,
-        auth_token = session.get("auth_token",None),
-        email = session.get("email",None),
-        name = session.get("name",None)
+        auth_token = session.get("auth_token", None),
+        email = session.get("email", None),
+        name = session.get("name", None),
+        edit_permission = session.get("id", None) == sample["owner"]["id"]
     )
 
 
@@ -515,9 +516,10 @@ def subsample(id):
         chemical_analyses = chemical_analyses,
         image_types=image_types,
         elements=elements,
-        auth_token = session.get("auth_token",None),
-        email = session.get("email",None),
-        name = session.get("name",None)
+        auth_token = session.get("auth_token", None),
+        email = session.get("email", None),
+        name = session.get("name", None),
+        edit_permission = session.get("id", None) == subsample["owner"]["id"]
     )
 
 
@@ -662,11 +664,14 @@ def chemical_analysis(id):
         flash(analysis['detail'])
         return redirect(url_for("search_chemistry"))
 
+    sample = get(env("API_HOST")+"samples/"+analysis["sample_id"]+"/", params = {"fields":"owner", "format":"json"}, headers=headers).json()
+
     return render_template("chemical_analysis.html",
         analysis = analysis,
-        auth_token = session.get("auth_token",None),
-        email = session.get("email",None),
-        name = session.get("name",None)
+        auth_token = session.get("auth_token", None),
+        email = session.get("email", None),
+        name = session.get("name", None),
+        edit_permission = session.get("id", None) == sample["owner"]["id"]
     )
 
 
