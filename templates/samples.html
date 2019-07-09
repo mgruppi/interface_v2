@@ -74,7 +74,7 @@
 function initialize() {
   var mapOptions = {
     center: new google.maps.LatLng(0,0),
-    zoom: 1,
+    zoom: 0,
     mapTypeId: google.maps.MapTypeId.HYBRID
   }
   var map = new google.maps.Map(document.getElementById('res-map-canvas'), mapOptions)
@@ -103,11 +103,24 @@ function initialize() {
     markers.push(marker);
   }
 
-  drawRegions(map);
+  regions = drawRegions(map);
 
-  map.fitBounds(markers.reduce(function(bounds, marker) {
-    return bounds.extend(marker.getPosition());
-  }, new google.maps.LatLngBounds()));
+    if (regions.length >= 1){ // Fit to regions
+        map.fitBounds(regions.reduce(function(bounds, region) {
+            var points = region.getPath();
+            for(var i = 0; i < points.length; ++i)
+            {
+                bounds = bounds.extend(points.getAt(i));
+            }
+            //return bounds.extend(region.getPath());
+            return bounds;
+        }, new google.maps.LatLngBounds()));
+    }
+    else if(markers.length>=1){
+      map.fitBounds(markers.reduce(function(bounds, marker) {
+        return bounds.extend(marker.getPosition());
+      }, new google.maps.LatLngBounds()));
+    }
 
 }
 google.maps.event.addDomListenerOnce(window, 'mouseover', initialize);
@@ -115,24 +128,26 @@ google.maps.event.addDomListenerOnce(window, 'mouseover', initialize);
 
 function drawRegions(map)
 {
-
-         var triangleCoords = [
-          {lat: 25.774, lng: -80.190},
-          {lat: 18.466, lng: -66.118},
-          {lat: 32.321, lng: -64.757},
-          {lat: 25.774, lng: -80.190}
-        ];
-
-               // Construct the polygon.
-        var bermudaTriangle = new google.maps.Polygon({
-          paths: triangleCoords,
-          strokeColor: '#FF0000',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: '#FF0000',
-          fillOpacity: 0.35
-        });
-        bermudaTriangle.setMap(map);
+        var regions = [];
+        region_colors = {"metamorphic_region": '#FF0000', "region": '#0000FF'}
+        {% for poly in polygons %}
+            var currentPoly = [];
+            {% for point in poly.points %}
+                currentPoly.push({lat:parseFloat("{{point[1]}}"), lng:parseFloat("{{point[0]}}")});
+            {% endfor %}
+             // Construct the polygon.
+                var mapPoly = new google.maps.Polygon({
+                  paths: currentPoly,
+                  strokeColor: region_colors["{{poly.type}}"],
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: region_colors["{{poly.type}}"],
+                  fillOpacity: 0.35
+                });
+                mapPoly.setMap(map);
+                regions.push(mapPoly);
+        {% endfor %}
+        return regions;
 }
 
 </script>

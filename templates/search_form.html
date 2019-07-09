@@ -105,7 +105,7 @@
                   <label for="metamophic_regions">Metamorphic Regions: </label><br>
                   <select onchange="updateBounds()" multiple class="chosen-select" id="selected-metregions" name="metamorphic_regions">
                     {% for mmr in metamorphic_regions %}
-                    <option value="{{ mmr.name }}">{{ mmr.name }}</option>
+                    <option value="{{ mmr.id }}">{{ mmr.name }}</option>
                     {% endfor %}
                   </select>
                 </div>

@@ -15,8 +15,7 @@ from flask import (
 )
 from flask_mail import Mail, Message
 from utilities import paginate_model, combine_identical_parameters, handle_fields
-
-import os
+import re
 
 mail = Mail()
 metpet_ui = Flask(__name__)
@@ -61,7 +60,6 @@ def search():
     if request.args.get("resource") == "samples":
         #resource value set in search_form.html, appends samples.html to bottom of page
         fixedListArgs = combine_identical_parameters(request.args.iteritems(multi=True))
-        print(fixedListArgs)
         return redirect(url_for("samples")+"?"+urlencode(fixedListArgs))
 
     if request.args.get("resource") == "chemical_analyses":
@@ -74,10 +72,6 @@ def search():
     my_samples = None
     if "my_samples" in filters:
         my_samples = get(env("API_HOST")+"samples/?&emails="+session.get("email", None), params={"format":"json"}).json()
-    else:
-        print "searching"
-
-
 
     #get all filter options from API, use format = json and minimum page sizes to speed it up
     regions = get(env("API_HOST")+"regions/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
@@ -86,7 +80,7 @@ def search():
     # collectors = get(env("API_HOST")+"collectors/", params = {"fields": "name", "page_size": 140, "format": "json"}).json()["results"]
     # references = get(env("API_HOST")+"references/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
     metamorphic_grades = get(env("API_HOST")+"metamorphic_grades/", params = {"fields": "name", "page_size": 30, "format": "json"}).json()["results"]
-    metamorphic_regions = get(env("API_HOST")+"metamorphic_regions/", params = {"fields": "name", "page_size": 240, "format": "json"}).json()["results"]
+    metamorphic_regions = get(env("API_HOST")+"metamorphic_regions/", params = {"fields": "id,name", "page_size": 240, "format": "json"}).json()["results"]
     fields_dict = {'Subsamples':'subsample_ids', 'Chemical Analyses':'chemical_analyses_ids', 'Collector':'collector_name', 'Images':'images', 'Owner':'owner', 'Regions':'regions', \
                 'Country':'country','Metamorphic Grades':'metamorphic_grades', 'Metamorphic Regions':'metamorphic_regions', 'Minerals':'minerals', \
                 'References':'references','Latitude':'latitude', 'Longitude':'longitude', 'Collection Date':'collection_date', 'Rock Type':'rock_type'}
@@ -98,6 +92,7 @@ def search():
     # numbers = get(env("API_HOST")+"sample_numbers/", params = {"format": "json"}).json()["sample_numbers"]
     # owners = get(env("API_HOST")+"sample_owner_names/", params = {"format": "json"}).json()["sample_owner_names"]
     # my_samples = filters['my_samples'] if 'my_samples' in filters else False
+
     return render_template("search_form.html",
         regions = regions,
         minerals = minerals,
@@ -168,6 +163,13 @@ def search_chemistry():
     )
 
 
+# Return lists of points from shape where shape is a string
+def extract_points_from_shape(shape):
+    points = re.search("\(\(.*\)\)", shape).group(0)  # regex gets all points within (( ))
+    points = points.lstrip("(").rstrip(")")
+    points = list(map(lambda p: p.split(), points.split(",")))  # point separated by comma, lat-long by space
+    return points
+
 @metpet_ui.route("/samples/")
 def samples():
     #filters sent as parameters to API calls
@@ -182,6 +184,17 @@ def samples():
     print(session)
     print("Pre-processing filters:")
     print(filters)
+
+    # Gather polygons to be drawn on map
+    polygons = []
+    if "metamorphic_regions" in filters:
+        names = ""  # Keep names of regions because sample only stores name of its metamorphic region, not object
+        for mr in filters["metamorphic_regions"][0].split(","):
+            region = get(env("API_HOST")+"metamorphic_regions/" + mr, params={"fields":"shape,name", "format":"json"}).json()
+            if "shape" in region:
+                polygons.append({"type": "metamorphic_region", "points": extract_points_from_shape(region["shape"])})
+            names += region["name"]
+        filters["metamorphic_regions"] = [names]
 
     # handle sorting
     sorting_dict = {'Sample Number':'number','Subsample Count':'subsamples', 'Collection Date':'collection_date','Subsamples':'subsamples', 'Country':'country', \
@@ -201,20 +214,6 @@ def samples():
     filters['fields'], fields_dict, field_names = handle_fields(filters,True)
 
     for key in filters.keys():
-        # Key is a map polygon
-        if key == "polygon_coords" and filters[key][0]:
-            # List of coordinate point strings; remove trailing comma, starting/trailing bracket,
-            #   and split into coordinate points
-            coords = filters[key][0].strip(',').strip('[').strip(']').split('],[')
-            # Tack the first coordinate on to the end of the list so that the coordinates
-            #   form a closed loop
-            coords.append(coords[0])
-            # Reassemble coordinates to be a list of two-element lists
-            coords = '[[' + ('],[').join(coords) + ']]'
-            filters[key] = coords
-            print "Polygon coords after handling: "
-            print(filters[key])
-            print(key)
         # Strip unused time values for start & end date queries
         if (key == "start_date" or key == "end_date") and filters[key]:
             filters[key] = filters[key][0][0:10]
@@ -229,11 +228,9 @@ def samples():
     print("Post-processing filters:")
     print(filters)
     filters["format"] = "json"
-    samples = {}
     try:   
 
-        headers = {"Authorization":"Token "+session["auth_token"]} 
-        print "HEADER:",headers
+        headers = {"Authorization":"Token "+session["auth_token"]}
         samples = get(env("API_HOST")+"samples/", params = filters,headers= headers).json()
         print "URL: ",get(env("API_HOST")+"samples/", params = filters,headers= headers)
     except KeyError:
@@ -253,7 +250,6 @@ def samples():
 
     next_url, prev_url, last_page, total, page_num = paginate_model("samples", samples, filters)
 
-
     # clean up values for samples view
     for s in sample_results:
         if "metamorphic_grades" in s:
@@ -267,6 +263,7 @@ def samples():
         if "regions" in s:
             s["regions"] = (", ").join([m for m in sorted(s["regions"])])
 
+
     csv_url = env("API_HOST") + "samples/?" + urlencode(filters) + "&format=csv"
 
     return render_template("samples.html",
@@ -277,6 +274,7 @@ def samples():
         sorting_name = sorting_name,
         showmap = "showmap" in filters,
         extends = "render" in filters,
+        polygons = polygons,
         total = total,
         page_num = page_num,
         next_url = next_url,
@@ -307,7 +305,6 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
         img_data["owner"] = session.get("id", None)
         img_file = {"image": img_files[i]}
         img_files[i].name = img_files[i].filename
-        print(img_data)
         response = post(env("API_HOST") + "images/", data=img_data, files=img_file, headers=headers)
         responses.append(response)
     return responses
@@ -545,7 +542,6 @@ def edit_subsample(id):
     if new:
         sample = get(env("API_HOST")+"samples/"+request.args.get("sample_id")+"/", params = {"fields": "id,number,owner"}, headers = headers).json()
     subsample = dict(request.form)
-    print subsample
     if subsample:
         for key in subsample.keys():
             if subsample[key] and subsample[key][0]:
@@ -725,8 +721,6 @@ def edit_chemical_analysis(id, subsample_id):
         if analysis["total"] == '':
             del analysis["total"]
 
-        print "analysis: ",analysis
-
         if new:
             analysis["subsample_id"] = request.args.get("subsample_id")
             response = post(env("API_HOST")+"chemical_analyses/", json = analysis, headers = headers)
@@ -735,7 +729,6 @@ def edit_chemical_analysis(id, subsample_id):
         if response.status_code < 300:
             return redirect(url_for("chemical_analysis", id = response.json()["id"]))
         errors = response.json()
-        print errors
 
     if new:
         subsample = get(env("API_HOST")+"subsamples/"+subsample_id+"/", params = {"fields": "id,name,owner,sample"},headers = headers).json()
@@ -847,7 +840,6 @@ def request_password_reset():
 def reset_password():
     #get password data
     form = dict(request.form)
-    print form
     password = request.form.get("new_password",None)
     if password:
         #send new password to API
