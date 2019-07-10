@@ -60,6 +60,14 @@ def search():
     if request.args.get("resource") == "samples":
         #resource value set in search_form.html, appends samples.html to bottom of page
         fixedListArgs = combine_identical_parameters(request.args.iteritems(multi=True))
+        # Decode utf before encoding as url
+        for k,v in fixedListArgs.iteritems():
+            if isinstance(v, unicode):
+                v = v.encode("utf8")
+            elif isinstance(v, str):
+                v.decode("utf8")
+            fixedListArgs[k] = v
+
         return redirect(url_for("samples")+"?"+urlencode(fixedListArgs))
 
     if request.args.get("resource") == "chemical_analyses":
@@ -250,6 +258,14 @@ def samples():
         except: 
             samples = {}
             sample_results = {}
+
+    # Decode utf8 before encoding as urld
+    for k, v in filters.iteritems():
+        if isinstance(v, unicode):
+            v = v.encode("utf8")
+        elif isinstance(v, str):
+            v.decode("utf8")
+        filters[k] = v
 
     next_url, prev_url, last_page, total, page_num = paginate_model("samples", samples, filters)
 
