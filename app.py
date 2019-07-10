@@ -195,6 +195,9 @@ def samples():
                 polygons.append({"type": "metamorphic_region", "points": extract_points_from_shape(region["shape"])})
             names += region["name"]
         filters["metamorphic_regions"] = [names]
+    if "owners" in filters:
+        # replace comma-space separated elements with just comma (or API will try to match names starting with spaces)
+        filters["owners"][0] = filters["owners"][0].replace(", ", ",")
 
     # handle sorting
     sorting_dict = {'Sample Number':'number','Subsample Count':'subsamples', 'Collection Date':'collection_date','Subsamples':'subsamples', 'Country':'country', \

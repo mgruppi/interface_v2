@@ -143,7 +143,7 @@
             <ul id="provenance">
               <h3>Provenance</h3>
               <label class="provenance-label" for="owners">Owner: </label>
-              <input type="text" placeholder="Use comma to search multiple values. E.g.: 'John', 'Smith'" class="search-textbox" name="owners" id="text-owners"/> <br>
+              <input type="text" placeholder="Use comma to search multiple values. E.g.: 'John,Smith'" class="search-textbox" name="owners" id="text-owners" onchange="ownerChange()"/> <br>
 <!--              <select id="selected-owner" autocomplete="off" onchange="updateProvenance()" name="owners" class="chosen-select">-->
 <!--                <option value="" selected>Select owner</option>-->
 <!--                {% for o in owners %}-->
