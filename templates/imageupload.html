@@ -167,6 +167,14 @@
     border-style: dashed;
     border-color: #999999;
     border-width: 2px;
+    margin-bottom: 6px;
+  }
+   .error-msgbox{
+    border-style: solid;
+    border-color: #FF0000;
+    background: rgba(255, 0, 0, 0.2);
+    border-width: 2px;
+    padding-left: 4px;
   }
 
   .upload-box:hover{
@@ -315,4 +323,13 @@
 
         </form>
 
-      </div>
+</div>
+
+{% if errors|length > 0 %}
+<div id="errorBox" class="error-msgbox">
+<p style="font-size: 14pt;">There were errors during upload:</p>
+    {% for error in errors%}
+        <p>File: {{ error.file }} - Error: {{error.message}}</p> <br>
+    {% endfor %}
+</div>
+{% endif %}

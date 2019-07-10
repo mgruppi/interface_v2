@@ -342,11 +342,19 @@ def sample(id):
             if formName == "uploadForm":  # Image upload is happening
                 responses = handle_upload("sample", id, form, files, session, headers)
                 print(responses)
+                for i in range(len(responses)):
+                    response = responses[i]
+                    if response.status_code != 201:
+                        err = {"file": files["inputFile"][i].name, "message": response.json()["error"]}
+                        errors.append(err)
+                        print(response.json())
+                        print(files["inputFile"][i])
 
             elif formName == "updateForm":  # Image update is happening (type and/or description)
                 response = handle_update("sample", id, form, session, headers)
-                # response = put(env("API_HOST") + "images/"+form["id"][0]+"/", data=data, headers=headers)
                 print(response)
+                if response.status_code != 201:
+                    errors.append(response.json())
             else:
                 print("Invalid form name.")
 
@@ -484,6 +492,7 @@ def subsample(id):
     if session.get("auth_token", None):
         headers = {"Authorization": "Token "+session.get("auth_token")}
 
+    errors = []
 
     if request.method == "POST":
         files = dict(request.files)
@@ -494,6 +503,13 @@ def subsample(id):
             if formName == "uploadForm":  # Image upload is happening
                 responses = handle_upload("subsample", id, form, files, session, headers)
                 print(responses)
+                for i in range(len(responses)):
+                    response = responses[i]
+                    if response.status_code != 201:
+                        err = {"file": files["inputFile"][i].name, "message": response.json()["error"]}
+                        errors.append(err)
+                        print(response.json())
+                        print(files["inputFile"][i])
 
             elif formName == "updateForm":  # Image update is happening (type and/or description)
                 response = handle_update("subsample", id, form, session, headers)
@@ -525,6 +541,7 @@ def subsample(id):
         chemical_analyses = chemical_analyses,
         image_types=image_types,
         elements=elements,
+        errors=errors,
         auth_token = session.get("auth_token", None),
         email = session.get("email", None),
         name = session.get("name", None),
@@ -667,6 +684,8 @@ def chemical_analysis(id):
     if session.get("auth_token", None):
         headers = {"Authorization": "Token "+session.get("auth_token")}
 
+    errors=[]
+
     analysis = get(env("API_HOST")+"chemical_analyses/"+id+"/", params = {"format": "json"}, headers = headers).json()
     if "detail" in analysis:
         flash(analysis['detail'])
@@ -676,6 +695,7 @@ def chemical_analysis(id):
 
     return render_template("chemical_analysis.html",
         analysis = analysis,
+        errors=errors,
         auth_token = session.get("auth_token", None),
         email = session.get("email", None),
         name = session.get("name", None),
