@@ -8,6 +8,14 @@
 <link rel="stylesheet" type="text/css" href="/static/css/imageviewer.css">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 
+{% if errors|length > 0 %}
+<div id="errorBox" class="error-msgbox">
+<p style="font-size: 14pt;">There were errors during upload:</p>
+    {% for error in errors%}
+        <p>File: {{ error.file }} - Error: {{error.message}}</p> <br>
+    {% endfor %}
+</div>
+{% endif %}
 
 <h4>
   <a href="{{ url_for('sample', id=analysis.sample_id) }}">Sample {{ analysis.sample }}</a> / 
