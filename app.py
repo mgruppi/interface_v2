@@ -203,9 +203,14 @@ def samples():
                 polygons.append({"type": "metamorphic_region", "points": extract_points_from_shape(region["shape"])})
             names += region["name"]
         filters["metamorphic_regions"] = [names]
-    if "owners" in filters:
+    provenance_fields = ["owners", "collectors", "numbers", "references"]
+    for field in provenance_fields:
         # replace comma-space separated elements with just comma (or API will try to match names starting with spaces)
-        filters["owners"][0] = filters["owners"][0].replace(", ", ",")
+        filters[field][0] = filters[field][0].split(",")
+        filters[field][0] = ",".join([x.strip(" ") for x in filters[field][0] if x != ""])
+        if filters[field][0] == "":  # delete field if resulting input is an empty string
+            del filters[field]
+
 
     # handle sorting
     sorting_dict = {'Sample Number':'number','Subsample Count':'subsamples', 'Collection Date':'collection_date','Subsamples':'subsamples', 'Country':'country', \
