@@ -105,15 +105,20 @@
                   </select>
                   <br>
 
+                  <script>var mmr_dict = {};</script>
                   <label for="metamophic_regions">Metamorphic Regions: </label><br>
-                  <select onchange="updateBounds()" multiple class="chosen-select" id="selected-metregions" name="metamorphic_regions">
+                  <select onchange="changeMetamorphicRegion(this)"multiple class="chosen-select" id="selected-metregions" name="metamorphic_regions">
                     {% for mmr in metamorphic_regions %}
-                    <option value="{{ mmr.id }}">{{ mmr.name }}</option>
+                    <option value="{{ mmr.id }}" id="{{mmr.id}}">{{ mmr.name }}</option>
                     {% endfor %}
                   </select>
+                  <br>
+                  <p id="polygon-hover" style="font-weight: bold;"></p>
+                  <div id="mmr-map" style="width: 100%; height: 400px;"> </div>
                 </div>
               </div>
             </ul>
+
           </div>
 
           <!-- MINERALS -->
@@ -373,6 +378,21 @@ $('#location-tab a').click(function (e) {
 });
 
 var poly=null;
+var map_global;
+var regions;
+var pre_selected;
+
+$(document).ready(function() {
+  var mmr_map = new google.maps.Map(document.getElementById('mmr-map'), {
+                zoom: 2,
+                minZoom: 2,
+                center: new google.maps.LatLng(0, 0),
+                disableDefaultUI: true,
+                gestureHandling: 'greedy'
+              });
+  regions = drawRegions(mmr_map);
+});
+
 
 //ON READY FUNCTION
 $(function()
@@ -452,6 +472,7 @@ $(function()
   document.getElementById('rocktypelist').appendChild(rocktypes);
 
   // GROUP MET GRADES
+  originalHTML=$("#metgrade-checkboxes :input");
   originalHTML=$("#metgrade-checkboxes :input");
   newInnerHTML='';
   b=0;
@@ -567,6 +588,9 @@ $(function()
     var homeControl=new HomeControl(homeControlDiv, map);
     homeControlDiv.index=1;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+
+    map_global = map;
+
   }
 
   function updatePolygon() {
@@ -1004,6 +1028,91 @@ function clearAll()
   clearMineral();
   clearProvenance();
   clearFields();
+}
+
+function changeMetamorphicRegion(p)
+{
+
+
+}
+
+
+function polygonOn(p)
+{
+  regions[p].setOptions({strokeColor: "#0000FF", fillColor: "#0000FF"});
+}
+
+function polygonOff(p)
+{
+  regions[p].setOptions({strokeColor: "#FF0000", fillColor: "#FF0000"});
+}
+
+function handlePolygonClick(p)
+{
+  var selected = $("#selected-metregions").val();
+  if (selected){
+    if (selected.includes(p)){
+      selected = selected.filter(function(val, i, arr){
+          return val != p;
+      });
+      //polygonOff(p);
+    }
+    else{
+      selected.push(p);
+      //polygonOn(p);
+    }
+
+  }
+  else // if selected was previously null
+  {
+    selected = p;
+    //polygonOn(p);
+  }
+
+  $("#selected-metregions").val(selected).trigger("chosen:updated");
+
+  pre_selected = selected;
+}
+
+function drawRegions(map)
+{
+
+   var infowindow = new google.maps.InfoWindow({
+                content: ""
+                });
+
+        var regions = {};
+        region_colors = {"metamorphic_region": '#FF0000', "region": '#0000FF'}
+        {% for poly in polygons %}
+            var currentPoly = [];
+            {% for point in polygons[poly]["shape"] %}
+                currentPoly.push({lat:parseFloat("{{point[1]}}"), lng:parseFloat("{{point[0]}}")});
+            {% endfor %}
+             // Construct the polygon.
+                var mapPoly = new google.maps.Polygon({
+                  paths: currentPoly,
+                  strokeColor: "#FF0000",
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: "#FF0000",
+                  fillOpacity: 0.35
+                });
+
+
+                mapPoly.addListener('click', function(){ handlePolygonClick("{{poly}}")
+                  });
+
+                mapPoly.addListener('mouseover', function(){
+                    infowindow.setContent(document.getElementById("{{poly}}").innerHTML);
+                    console.log(infowindow.content);
+                    infowindow.open(map);
+                    document.getElementById("polygon-hover").innerHTML = infowindow.content;
+                  });
+
+                  mapPoly.setMap(map);
+                regions["{{poly}}"] = (mapPoly);
+        {% endfor %}
+        return regions;
 }
 
 

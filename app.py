@@ -88,7 +88,7 @@ def search():
     # collectors = get(env("API_HOST")+"collectors/", params = {"fields": "name", "page_size": 140, "format": "json"}).json()["results"]
     # references = get(env("API_HOST")+"references/", params = {"fields": "name", "page_size": 2000, "format": "json"}).json()["results"]
     metamorphic_grades = get(env("API_HOST")+"metamorphic_grades/", params = {"fields": "name", "page_size": 30, "format": "json"}).json()["results"]
-    metamorphic_regions = get(env("API_HOST")+"metamorphic_regions/", params = {"fields": "id,name", "page_size": 240, "format": "json"}).json()["results"]
+    metamorphic_regions = get(env("API_HOST")+"metamorphic_regions/", params = {"fields": "id,name,shape", "page_size": 240, "format": "json"}).json()["results"]
     fields_dict = {'Subsamples':'subsample_ids', 'Chemical Analyses':'chemical_analyses_ids', 'Collector':'collector_name', 'Images':'images', 'Owner':'owner', 'Regions':'regions', \
                 'Country':'country','Metamorphic Grades':'metamorphic_grades', 'Metamorphic Regions':'metamorphic_regions', 'Minerals':'minerals', \
                 'References':'references','Latitude':'latitude', 'Longitude':'longitude', 'Collection Date':'collection_date', 'Rock Type':'rock_type'}
@@ -101,12 +101,16 @@ def search():
     # owners = get(env("API_HOST")+"sample_owner_names/", params = {"format": "json"}).json()["sample_owner_names"]
     # my_samples = filters['my_samples'] if 'my_samples' in filters else False
 
+    #clean up metamorphic_regions shapes
+    polygons = {}
+    for i in range(len(metamorphic_regions)):
+        polygons[metamorphic_regions[i]["id"]] = {"name": metamorphic_regions[i]["name"], "shape": extract_points_from_shape(metamorphic_regions[i]["shape"])}
+    print(metamorphic_regions)
     return render_template("search_form.html",
         regions = regions,
         minerals = minerals,
         rock_types = rock_types,
-        # collectors = collectors,
-        # references = references,
+        polygons=polygons,
         metamorphic_grades = metamorphic_grades,
         metamorphic_regions = metamorphic_regions,
         sorting_dict = sorted(sorting_dict),
@@ -196,13 +200,13 @@ def samples():
     # Gather polygons to be drawn on map
     polygons = []
     if "metamorphic_regions" in filters:
-        names = ""  # Keep names of regions because sample only stores name of its metamorphic region, not object
+        names = []  # Keep names of regions because sample only stores name of its metamorphic region, not object
         for mr in filters["metamorphic_regions"][0].split(","):
             region = get(env("API_HOST")+"metamorphic_regions/" + mr, params={"fields":"shape,name", "format":"json"}).json()
             if "shape" in region:
                 polygons.append({"type": "metamorphic_region", "points": extract_points_from_shape(region["shape"])})
-            names += region["name"]
-        filters["metamorphic_regions"] = [names]
+            names.append(region["name"])
+        filters["metamorphic_regions"] = [",".join(names)]
     provenance_fields = ["owners", "collectors", "numbers", "references"]
     for field in provenance_fields:
         # replace comma-space separated elements with just comma (or API will try to match names starting with spaces)
