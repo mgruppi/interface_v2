@@ -882,7 +882,7 @@ function updateProvenance()
   var searchOptions=document.getElementById("search-options-provenance");
   searchOptions.innerHTML="";
 
-  if($("#text-owners").val() != "")
+  if($("#text-owners").val() != "" ||$("#text-collectors").val() != "" || $("#text-references").val() != "" || $("#text-numbers").val() != "")
   {
     searchOptions.innerHTML += "<div class='summary-title'><h4>Provenance</h4><a onclick='clearProvenance()' class='clear-title' href='#'>Clear</a></div>";
   }
@@ -894,15 +894,15 @@ function updateProvenance()
   }
   if($("#text-collectors").val() != "")
   {
-    searchOptions.innerHTML += "<b>Owner:</b> " + $("#text-collectors").val() + "<br> ";
+    searchOptions.innerHTML += "<b>Collectors:</b> " + $("#text-collectors").val() + "<br> ";
   }
   if($("#text-references").val() != "")
   {
-    searchOptions.innerHTML += "<b>Owner:</b> " + $("#text-references").val() + "<br> ";
+    searchOptions.innerHTML += "<b>References:</b> " + $("#text-references").val() + "<br> ";
   }
   if($("#text-numbers").val() != "")
   {
-    searchOptions.innerHTML += "<b>Owner:</b> " + $("#text-numbers").val() + "<br> ";
+    searchOptions.innerHTML += "<b>Number:</b> " + $("#text-numbers").val() + "<br> ";
   }
 
 
@@ -940,10 +940,6 @@ function clearProvenance()
   $("#numbers_exact").prop("checked", false);
 
   $("#provenance .chosen-select").val('').trigger("chosen:updated");
-  if($('#date-start').val())
-    $.datepicker._clearDate('#date-start');
-  if($('#date-end').val())
-    $.datepicker._clearDate('#date-end');
   $('#date-start').val('');
   $('#date-end').val('');
   $('#startdatevalue').attr('value', '');
