@@ -101,11 +101,14 @@ def search():
     # owners = get(env("API_HOST")+"sample_owner_names/", params = {"format": "json"}).json()["sample_owner_names"]
     # my_samples = filters['my_samples'] if 'my_samples' in filters else False
 
-    #clean up metamorphic_regions shapes
+    # Filter antarctica which is currently glitched
+    metamorphic_regions = [x for x in metamorphic_regions if x["id"] != "091577af-4592-405c-b63e-5b8ecdc69264"]
+
+    # clean up metamorphic_regions shapes
     polygons = {}
     for i in range(len(metamorphic_regions)):
         polygons[metamorphic_regions[i]["id"]] = {"name": metamorphic_regions[i]["name"], "shape": extract_points_from_shape(metamorphic_regions[i]["shape"])}
-    print(metamorphic_regions)
+
     return render_template("search_form.html",
         regions = regions,
         minerals = minerals,

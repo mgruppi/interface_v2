@@ -380,7 +380,7 @@ $('#location-tab a').click(function (e) {
 var poly=null;
 var map_global;
 var regions;
-var pre_selected;
+var polygons_selected;
 
 $(document).ready(function() {
   var mmr_map = new google.maps.Map(document.getElementById('mmr-map'), {
@@ -1033,6 +1033,20 @@ function clearAll()
 function changeMetamorphicRegion(p)
 {
 
+  if (polygons_selected)
+    for (var i = 0; i < polygons_selected.length; ++i)
+    {
+      polygonOff(polygons_selected[i]);
+    }
+
+  polygons_selected = $("#selected-metregions").val();
+
+  if (polygons_selected)
+    for (var i = 0; i < polygons_selected.length; ++i)
+    {
+      polygonOn(polygons_selected[i]);
+    }
+
 
 }
 
@@ -1055,23 +1069,23 @@ function handlePolygonClick(p)
       selected = selected.filter(function(val, i, arr){
           return val != p;
       });
-      //polygonOff(p);
+      polygonOff(p);
     }
     else{
       selected.push(p);
-      //polygonOn(p);
+      polygonOn(p);
     }
 
   }
   else // if selected was previously null
   {
-    selected = p;
-    //polygonOn(p);
+    selected = [p];
+    polygonOn(p);
   }
 
   $("#selected-metregions").val(selected).trigger("chosen:updated");
 
-  pre_selected = selected;
+  polygons_selected = selected;
 }
 
 function drawRegions(map)
@@ -1104,7 +1118,6 @@ function drawRegions(map)
 
                 mapPoly.addListener('mouseover', function(){
                     infowindow.setContent(document.getElementById("{{poly}}").innerHTML);
-                    console.log(infowindow.content);
                     infowindow.open(map);
                     document.getElementById("polygon-hover").innerHTML = infowindow.content;
                   });
