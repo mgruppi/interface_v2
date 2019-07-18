@@ -60,6 +60,8 @@
               <h3>Fields to Show</h3>
               <div id="field-checkboxes">
                 {% for f in fields %}
+                {% set fid = f + "-field" %}
+                <script>console.log("{{ fid }}");</script>
                 <input type="checkbox" class="field" onchange="updateFields()" name="field" value="{{ f }}">
                 {% endfor %}
               </div>
@@ -377,6 +379,12 @@ $('#location-tab a').click(function (e) {
   $(this).tab('show');
 });
 
+function selectDefaultFields()
+{
+
+
+}
+
 var poly=null;
 var map_global;
 var regions;
@@ -391,6 +399,10 @@ $(document).ready(function() {
                 gestureHandling: 'greedy'
               });
   regions = drawRegions(mmr_map);
+
+
+  selectDefaultFields();
+
 });
 
 

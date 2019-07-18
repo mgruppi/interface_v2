@@ -213,10 +213,11 @@ def samples():
     provenance_fields = ["owners", "collectors", "numbers", "references"]
     for field in provenance_fields:
         # replace comma-space separated elements with just comma (or API will try to match names starting with spaces)
-        filters[field][0] = filters[field][0].split(",")
-        filters[field][0] = ",".join([x.strip(" ") for x in filters[field][0] if x != ""])
-        if filters[field][0] == "":  # delete field if resulting input is an empty string
-            del filters[field]
+        if field in filters:
+            filters[field][0] = filters[field][0].split(",")
+            filters[field][0] = ",".join([x.strip(" ") for x in filters[field][0] if x != ""])
+            if filters[field][0] == "":  # delete field if resulting input is an empty string
+                del filters[field]
 
 
     # handle sorting
