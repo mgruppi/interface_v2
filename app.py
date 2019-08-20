@@ -805,6 +805,50 @@ def edit_chemical_analysis(id, subsample_id):
         name = session.get("name",None)
     )
 
+@metpet_ui.route("/edit-project/<string:id>", methods = ["GET", "POST"])
+def edit_project(id):
+    headers = None
+    if session.get("auth_token", None):
+        headers = {"Authorization": "Token "+session.get("auth_token")}
+    else:
+        return redirect(url_for("chemical_analysis", id = id))
+
+    # Project object
+    project = dict()
+    if id == "new": # Once API can determine
+        project["owner"] = get(env("API_HOST") + "users/" + session.get("id") + "/", headers=headers).json()
+
+
+    return render_template("edit_project.html",
+        project=project,
+        auth_token = session.get("auth_token",None),
+        email = session.get("email",None),
+        name=session.get("name", None)
+    )
+
+@metpet_ui.route("/project/<string:id>", methods =["GET", "POST"])
+def project(id):
+    # headers! to authenticate user during API calls (for private data and to add/edit their samples)
+    headers = None
+    if session.get("auth_token", None):
+        headers = {"Authorization": "Token "+session.get("auth_token")}
+
+    project = dict()
+    project["id"] = "00011"
+    project["name"] = "Rocks from the world"
+    project["public_data"] = True
+    project["creation_date"] = "2019-01-01"
+    project["description"] = "This is a test project"
+    project["owner"] = get(env("API_HOST") + "users/" + session.get("id") + "/", headers=headers).json()
+
+    return render_template("project.html",
+        project=project,
+        auth_token = session.get("auth_token",None),
+        email = session.get("email",None),
+        name=session.get("name", None),
+        edit_permission = session.get("id", None) == project["owner"]["id"]
+    )
+
 @metpet_ui.route("/login", methods = ["GET", "POST"])
 def login():
     #redirect to index if already logged in

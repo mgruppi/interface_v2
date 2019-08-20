@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+<h4>
+  Project:  {{ project.name }}
+
+  <div style='float:right'> &nbsp; &nbsp; &nbsp; </div>
+  {% if auth_token and edit_permission %}<span style="float:right"><a href="{{ url_for('edit_project', id=project.id) }}">Edit Project</a></span>{% endif %}
+
+</h4>
+
+{% endblock %}
+
+{% block body %}
+<div class="table-responsive">
+  <table id="sampleview_table" class="table">
+    <tbody>
+      <tr>
+        <td class="project_label">Owner</td>
+        <td class="project_value">{{ project.owner.name }}</td>
+      </tr>
+      <tr>
+        <td class="project_label">Creation Date</td>
+        <td class="project_value">{{ project.creation_date }}</td>
+      </tr>
+      <tr>
+        <td class="project_label">Public Data</td>
+        <td class="project_value">{% if project.public_data %}Yes{% else %}No{% endif %}</td>
+      </tr>
+      <tr>
+        <td class="project_label">Description</td>
+        <td class="project_value">{{ project.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+    <div id="member_panel"></div>
+
+    <hr>
+    <h4>Members</h4>
+    <hr>
+    <h4>Samples</h4>
+
+</div>
+
+{% endblock %}
