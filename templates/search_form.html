@@ -61,8 +61,8 @@
               <div id="field-checkboxes">
                 {% for f in fields %}
                 {% set fid = f + "-field" %}
-                <script>console.log("{{ fid }}");</script>
-                <input type="checkbox" class="field" onchange="updateFields()" name="field" value="{{ f }}">
+
+                <input type="checkbox" class="field" onchange="updateFields()" name="fields" id = "{{ f }}" value="{{ f }}">
                 {% endfor %}
               </div>
               <a id="toggleSelectAll" style="float:top-right" onclick="toggleAllFields(this.text)" href="#">Select All</a>
@@ -381,6 +381,12 @@ $('#location-tab a').click(function (e) {
 
 function selectDefaultFields()
 {
+  default_fields = ["Subsamples", "Chemical Analyses", "Images", "Minerals", "Latitude", "Longitude"];
+
+  for (var i = 0; i < default_fields.length; ++i)
+  {
+    document.getElementById(default_fields[i]).checked = true;
+  }
 
 
 }
@@ -399,10 +405,6 @@ $(document).ready(function() {
                 gestureHandling: 'greedy'
               });
   regions = drawRegions(mmr_map);
-
-
-  selectDefaultFields();
-
 });
 
 
@@ -540,6 +542,7 @@ $(function()
     var val=$(originalHTML[a]).attr('value');
     $(input).attr('value', val);
 
+    $(input).attr("id", val);
     div.appendChild(input);
     div.innerHTML += val += "<br>";
     if(b == 4 || a == originalHTML.length - 1)
@@ -552,6 +555,8 @@ $(function()
   }
   document.getElementById('field-checkboxes').innerHTML='';
   document.getElementById('field-checkboxes').appendChild(fields);
+  selectDefaultFields();
+
 
   // GOOGLE MAP RENDERING
   function initialize()

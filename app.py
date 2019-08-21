@@ -235,7 +235,7 @@ def samples():
         sorting_name = rev_sorting_dict[filters['ordering'][0]]
 
     # format fields in request and keep list of titles for interface
-    filters['fields'], fields_dict, field_names = handle_fields(filters,True)
+    filters['fields'], fields_dict, field_names = handle_fields(filters, True)
 
     for key in filters.keys():
         # Strip unused time values for start & end date queries
