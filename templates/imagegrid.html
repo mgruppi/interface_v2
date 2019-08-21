@@ -3,7 +3,7 @@
       {% if s.images %} {%for image in s.images %}
       <script>
         images.push({"id": "{{ image.id }}", "url":"{{ image.image.full_size }}", "description": "{{ image.description }}",
-        "type": "{{ image.image_type.id }}" });
+        "type": "{{ image.image_type.id }}", "element": "{{ image.element }}" });
       </script>
         <div class="thumbnail" id="{{ loop.index-1 }}">
           <img src = "{{ image.image.full_size }}" style="width:100%; height:200px" class="sampleimg"

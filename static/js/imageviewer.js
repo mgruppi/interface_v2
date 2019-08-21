@@ -10,8 +10,12 @@ function overlay_on(e){
 }
 
 
-function setCurrentImageType(type){
+function setCurrentImageType(type, element){
     $('#imageTypeSelect').val(type);
+    if (element != null){
+        $("#optionElement").val(element);
+    }
+
     handleImageType(document.getElementById("imageTypeSelect"), document.getElementById("elementDiv"));
 }
 
@@ -20,12 +24,11 @@ function setCurrentImage(currentImage){
   img.src = images[currentImage]["url"];
   img.width = img.naturalWidth;
   img.height = img.naturalHeight;
-  setCurrentImageType(images[currentImage].type);
+  setCurrentImageType(images[currentImage].type, images[currentImage].element);
   document.getElementById("imageDescriptionText").value = images[currentImage]["description"];
 
   // Reset updated label
   hideUpdatedLabel();
-
 }
 
 function nextImage(){
@@ -68,7 +71,7 @@ function resetImageUpdate()
     // Restore form to default values
     $("#imageDescriptionText").val(images[currentImage]["description"]);
     // $("#imageTypeSelect").val(images[currentImage]["type"]);
-    setCurrentImageType(images[currentImage]["type"]);
+    setCurrentImageType(images[currentImage]["type"], images[currentImage].element);
     hideUpdatedLabel();
 }
 

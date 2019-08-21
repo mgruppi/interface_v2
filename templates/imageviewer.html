@@ -35,6 +35,7 @@
         if (currentImage < 0) return;
         images[currentImage].description = document.getElementById("imageDescriptionText").value;
         images[currentImage].type = document.getElementById("imageTypeSelect").value;
+        images[currentImage].element = document.getElementById("optionElement").value;
 
         showSavedLabel();
     }
@@ -105,10 +106,9 @@ $(document).ready(function() {
                     </select>
                   <div name="elementDiv" id="elementDiv" style="display: none;">
                   <h5>X-ray element</h5>
-                      <select name="xRayElement" id="xRayElement" class="chosen-select" style="width: 85%" onchange="showModifiedLabel()" {% if auth_token and not edit_permission %} disabled {% endif %}>
+                      <select name="optionElement" id="optionElement" class="chosen-select" style="width: 85%" onchange="showModifiedLabel()" {% if auth_token and not edit_permission %} disabled {% endif %}>
                         {% for e in elements %}
                           <option value="{{e.id}}">{{ e.symbol }}</option>
-
                         {% endfor %}
                       </select>
                   </div>

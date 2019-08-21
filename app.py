@@ -322,7 +322,7 @@ def samples():
 
 # Handles upload of images to endpoints (sample, subsample, or chemical analysis)
 def handle_upload(endpoint, sample_id, form, files, session, headers):
-    XRAY_TYPE_ID = 13  # constant for xray image type
+    XRAY_TYPE_ID = '13'  # constant for xray image type
     img_files = files["inputFile"]
     img_type = form["type"]
     img_description = form["description"]
@@ -331,8 +331,8 @@ def handle_upload(endpoint, sample_id, form, files, session, headers):
         img_data = dict()
         img_data["description"] = img_description[i]
         img_data["image_type"] = img_type[i]
-        if img_type[i] == XRAY_TYPE_ID:  # If image is x-ray, we must upload element
-            print(form["xRayElement"])
+        if img_type[i] == XRAY_TYPE_ID and "optionElement" in form:  # If image is x-ray, we must upload element
+            img_data["element"] = form["optionElement"]
         img_data[endpoint] = sample_id
         img_data["owner"] = session.get("id", None)
         img_file = {"image": img_files[i]}
@@ -348,6 +348,8 @@ def handle_update(endpoint, sample_id, form, session, headers):
     data["description"] = form["description"][0]
     data[endpoint] = sample_id
     data["image_type"] = form["type"][0]
+    if data["image_type"] == '13' and "optionElement" in form: # XRAY IMAGE
+        data["element"] = form["optionElement"]
     data["owner"] = session.get("id", None)
     response = put(env("API_HOST") + "images/" + form["id"][0] + "/", data=data, headers=headers)
     return response
@@ -382,7 +384,7 @@ def sample(id):
             elif formName == "updateForm":  # Image update is happening (type and/or description)
                 response = handle_update("sample", id, form, session, headers)
                 print(response)
-                if response.status_code != 201:
+                if response.status_code != 200:
                     errors.append(response.json())
             else:
                 print("Invalid form name.")
