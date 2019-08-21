@@ -10,7 +10,19 @@
 {% endblock %}
 
 {% block body %}
+
+<script src="https://www.google.com/recaptcha/api.js?render=6LdoM7QUAAAAAK0IjEBS0I9E8Ys9jJrN8drDWY9j"></script>
+<script>
+  grecaptcha.ready(function() {
+    grecaptcha.execute('6LdoM7QUAAAAAK0IjEBS0I9E8Ys9jJrN8drDWY9j', {action: 'homepage'}).then(function(token) {
+       document.getElementById("recaptchaResponseLogin").value = token;
+       document.getElementById("recaptchaResponseRegister").value = token;
+    });
+  });
+</script>
+
 <form action="" method="post" onsubmit="return checkForm(this, 'login');">
+  <input type="hidden" name="recaptcha_response" id="recaptchaResponseLogin">
   <div class="table-responsive" style="float:left;width:45%">
     <table class="table">
       <tr>
@@ -27,8 +39,10 @@
       </tr>
     </table>
   </div>
+
 </form>
 <form action="" method="post" onsubmit="return checkForm(this, 'register');">
+  <input type="hidden" name="recaptcha_response" id="recaptchaResponseRegister">
   <div class="table-responsive" style="float:left;width:45%;border-left:solid #aaaabb;padding-left:15px">
     <table class="table">
       <tr>
@@ -79,10 +93,11 @@
         <td>Verify Password*</td>
         <td><input type="password" name="password_confirm" style="width:95%"></td>
       </tr>
+
       <tr>
         <td> </td>
         <td><input type="submit" name="login" value="Register"></td>
-      </td>
+      </tr>
     </table>
   </div>
 </form>

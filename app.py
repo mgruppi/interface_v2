@@ -858,35 +858,49 @@ def login():
         return redirect(url_for("index"))
 
     login = dict(request.form)
+
     if login:
-        #get email/password/(other info if registering)
-        for l in login.keys():
-            if login[l]:
-                login[l] = login[l][0]
-            else:
-                del login[l]
-        register = (login["login"] == "Register")
-        del login["login"]
 
-        #try to login/register
-        auth_token = {}
-        if register:
-            auth_token = post(env("API_HOST")+"auth/users/create/", data = login).json()
-            flash("Activation email sent to: {}".format(login['email']))
+        # Set up reCAPTCHA verification
+        recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
+        secret_key = "6LdoM7QUAAAAAKMHAuYRMIMNTKOI-X42wt1QzapD"  # KEEP IT SERVER SIDE ONLY
+        recaptcha_response = login["recaptcha_response"]
+        recaptcha_data = {"secret": secret_key, "response": recaptcha_response}
+
+        # POST reCAPTCHA verification
+        recaptcha = post(recaptcha_url, data=recaptcha_data).json()
+
+        if recaptcha["success"] is False:
+            flash("Could not log in. reCAPTCHA failed. Are you human?")
         else:
-            auth_token = post(env("API_HOST")+"auth/token/create/", data = login).json()
+            #get email/password/(other info if registering)
+            for l in login.keys():
+                if login[l]:
+                    login[l] = login[l][0]
+                else:
+                    del login[l]
+            register = (login["login"] == "Register")
+            del login["login"]
 
-            if not auth_token or "auth_token" not in auth_token:
-                flash((',').join(auth_token.values()[0]))
+            #try to login/register
+            auth_token = {}
+            if register:
+                auth_token = post(env("API_HOST")+"auth/users/create/", data = login).json()
+                flash("Activation email sent to: {}".format(login['email']))
             else:
-                flash("Login successful!")
-                session["auth_token"] = auth_token["auth_token"]
-                session["email"] = login["email"]
-                session["id"] = auth_token["user_id"]
-                session["name"] = get(env("API_HOST")+"users/"+session["id"],
-                    params = {"fields": "name"}, headers = {"Authorization": "Token "+session["auth_token"]}).json()["name"]
+                auth_token = post(env("API_HOST")+"auth/token/create/", data = login).json()
 
-                return redirect(url_for("index"))
+                if not auth_token or "auth_token" not in auth_token:
+                    flash((',').join(auth_token.values()[0]))
+                else:
+                    flash("Login successful!")
+                    session["auth_token"] = auth_token["auth_token"]
+                    session["email"] = login["email"]
+                    session["id"] = auth_token["user_id"]
+                    session["name"] = get(env("API_HOST")+"users/"+session["id"],
+                        params = {"fields": "name"}, headers = {"Authorization": "Token "+session["auth_token"]}).json()["name"]
+
+                    return redirect(url_for("index"))
 
     return render_template("login.html",
         auth_token = session.get("auth_token",None),
