@@ -11,10 +11,10 @@
 
 {% block body %}
 
-<script src="https://www.google.com/recaptcha/api.js?render=6LdoM7QUAAAAAK0IjEBS0I9E8Ys9jJrN8drDWY9j"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LflkLQUAAAAAE0OhG7vUV1903dVnENaF1Hv6eac"></script>
 <script>
   grecaptcha.ready(function() {
-    grecaptcha.execute('6LdoM7QUAAAAAK0IjEBS0I9E8Ys9jJrN8drDWY9j', {action: 'homepage'}).then(function(token) {
+    grecaptcha.execute('6LflkLQUAAAAAE0OhG7vUV1903dVnENaF1Hv6eac', {action: 'homepage'}).then(function(token) {
        document.getElementById("recaptchaResponseLogin").value = token;
        document.getElementById("recaptchaResponseRegister").value = token;
     });
