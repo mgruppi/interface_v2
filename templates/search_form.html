@@ -786,6 +786,21 @@ function updateLocation()
     searchOptions.innerHTML += "<br>";
   }
 
+  if (poly)
+  {
+    vertices=poly.getPath();
+    searchOptions.innerHTML += "<b>Polygon:</b><br>";
+    for (var i=0; i < vertices.getLength(); i++)
+    {
+      var lat=vertices.getAt(i).lat();
+      var lng=vertices.getAt(i).lng();
+      searchOptions.innerHTML += '('+lat.toFixed(5)+','+lng.toFixed(5)+'),<br>';
+    }
+    var s=searchOptions.innerHTML;
+    searchOptions.innerHTML=s.slice(0, -5);
+    searchOptions.innerHTML += "<br>";
+  }
+
 }
 function updateBounds()
 {
@@ -828,11 +843,11 @@ function updateBounds()
     searchOptions.innerHTML=s.slice(0, -5);
     searchOptions.innerHTML += "<br>";
   }
-
   updateLocation();
 }
 function addCoordinate()
 {
+  updateLocation();
   // document.getElementById("polygon_coords").innerHTML += '<input type="text" onchange="updateBounds()" value="[0.0,0.0]" name="polygon_coords" style="width:20%"><br>';
 }
 function clearBounds()
