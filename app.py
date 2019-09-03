@@ -244,10 +244,22 @@ def samples():
         # Unnecessary, empty, or blank key
         elif key == "polygon_coord": # or not filters[key] or filters[key] == '' or filters[key][0] == '':
             del filters[key]
+        elif key == "polygon_coords":  # pre-process polygon_coords
+            filters[key] = filters[key][0].rstrip(",")  # strip off trailing commas from frontend
+            # Add first point to the end of list as it is required by the backend to "close" the polygon
+            # use regex because the input is a string, not a list
+            first_point = re.search("\[(\-)?[0-9]+(\.[0-9]+)?,(\-)?[0-9]+(\.[0-9]+)?\]", filters[key]).group(0)
+            filters[key] += "," + first_point
+
+            # Finally, enclose the string in brackets since we need to send a list of points
+            filters[key] = "[" + filters[key] + "]"
+
         # Any other key
         else:
             # Turn list into a comma-separated string
-            filters[key] = (',').join([e for e in filters[key] if e and e[0]])
+            filters[key] = (',').join([e for e in filters[key] if e and e[0]]).rstrip(",")  # strip trailing commas
+
+
 
     print("Post-processing filters:")
     print(filters)
@@ -256,7 +268,7 @@ def samples():
 
         headers = {"Authorization":"Token "+session["auth_token"]}
         samples = get(env("API_HOST")+"samples/", params = filters,headers= headers).json()
-        print "URL: ",get(env("API_HOST")+"samples/", params = filters,headers= headers)
+        print "URL: ", get(env("API_HOST")+"samples/", params = filters,headers= headers)
     except KeyError:
         samples = get(env("API_HOST")+"samples/",params = filters).json()
 
@@ -819,7 +831,6 @@ def edit_project(id):
     project = dict()
     if id == "new": # Once API can determine
         project["owner"] = get(env("API_HOST") + "users/" + session.get("id") + "/", headers=headers).json()
-
 
     return render_template("edit_project.html",
         project=project,
