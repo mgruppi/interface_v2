@@ -873,8 +873,7 @@ def login():
     if login:
 
         # Load recaptcha secret
-        with open("recaptcha_secret.txt") as fin:   # KEEP IT SERVER SIDE ONLY
-            secret_key = fin.readline()
+        secret_key = env("RECAPTCHA_SECRET")
         # Set up reCAPTCHA verification
         recaptcha_url = "https://www.google.com/recaptcha/api/siteverify"
         recaptcha_response = login["recaptcha_response"]
