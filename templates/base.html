@@ -87,13 +87,13 @@
                     }}">Bulk Upload</a></li>
                   </ul>
                 </li>
-                <li onmouseleave="closeProjectMenu()">
-                  <a onmouseover="openProjectMenu()">Projects</a>
-                  <ul class="navbar-dropdown editmenu">
-                    <li name="projectobject"><a href="{{ url_for('edit_project', id='new') }}">Create Project</a></li>
-                    <li name="projectobject"><a href="">My Projects</a></li>
-                  </ul>
-                </li>
+<!--                <li onmouseleave="closeProjectMenu()">-->
+<!--                  <a onmouseover="openProjectMenu()">Projects</a>-->
+<!--                  <ul class="navbar-dropdown editmenu">-->
+<!--                    <li name="projectobject"><a href="{{ url_for('edit_project', id='new') }}">Create Project</a></li>-->
+<!--                    <li name="projectobject"><a href="">My Projects</a></li>-->
+<!--                  </ul>-->
+<!--                </li>-->
                 <li><a href="{{ url_for('search') }}?emails={{ email }}&my_samples=True">My Samples</a></li>
                 <!-- <li><a href="{{ url_for('search') }}?emails={{ email }}&resource=samples&render=True">My Samples</a></li> -->
                 <li><a href="https://goo.gl/forms/UXvD0f1tsDO0FL5a2">Report a Bug</a></li>
